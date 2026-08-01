@@ -1,0 +1,119 @@
+# MichSya 💗
+
+Ruang kenangan pribadi Michael & Ruth: wishlist, kenangan, jadwal date, surat masa depan (time capsule),
+couple goals, peta perjalanan, dan ide date random. Dibangun dengan React + Vite + Tailwind +
+Supabase, dan responsif untuk desktop maupun mobile.
+
+## Setup
+
+### 1. Buat project Supabase
+Buat project gratis di [supabase.com](https://supabase.com).
+
+### 2. Jalankan migration
+Buka **SQL Editor** di dashboard Supabase, lalu jalankan berurutan:
+1. [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) — semua tabel inti, RLS,
+   view `future_letters_view`, dan storage bucket `couple-photos`.
+2. [`supabase/migrations/0002_cover_photo.sql`](supabase/migrations/0002_cover_photo.sql) — kolom
+   foto sampul di `couple`, bucket publik `public-covers`, dan view `couple_public_view` (dipakai
+   landing page yang belum login).
+3. [`supabase/migrations/0003_arcade.sql`](supabase/migrations/0003_arcade.sql) — tabel
+   `game_sessions` untuk mode online Arcade Room.
+4. [`supabase/migrations/0004_gallery.sql`](supabase/migrations/0004_gallery.sql) — tabel
+   `gallery_photos` untuk upload foto banyak sekaligus di menu Galeri.
+
+### 3. Install & konfigurasi
+```bash
+npm install
+cp .env.example .env.local
+```
+Isi `.env.local` dengan **Project URL** dan **anon public key** dari Settings → API di dashboard
+Supabase.
+
+### 4. Buat 2 akun (sekali saja)
+```bash
+npm run dev
+```
+Buka `http://localhost:5173/signup`, buat akun untuk Michael, sign out, lalu buat akun untuk Ruth.
+
+### 5. Hubungkan couple space (sekali saja)
+Di SQL Editor, jalankan (ganti email dan tanggal jadian yang sebenarnya):
+```sql
+insert into couple (partner1_id, partner2_id, anniversary_date)
+select
+  (select id from auth.users where email = 'michael@email-asli.com'),
+  (select id from auth.users where email = 'ruth@email-asli.com'),
+  '2020-01-01';
+```
+
+### 6. Kunci pendaftaran (opsional tapi disarankan)
+Karena aplikasi ini hanya untuk kalian berdua, matikan pendaftaran publik di dashboard Supabase:
+**Authentication → Settings → Allow new users to sign up** → off. Ini mencegah orang lain
+membuat akun baru sama sekali.
+
+Setelah itu, login seperti biasa di `/login` dari device mana pun — data otomatis sync karena
+disimpan di Supabase (Postgres), bukan hanya di browser.
+
+## Struktur fitur
+
+| Fitur | Halaman |
+| --- | --- |
+| Beranda (counter, anniversary, quote, mood, ide date) | `/app` |
+| Wishlist | `/app/wishlist` |
+| Kenangan (foto & cerita) | `/app/memories` |
+| Galeri (upload banyak foto, kartu looping di beranda) | `/app/gallery` |
+| Jadwal Date | `/app/schedule` |
+| Surat Masa Depan (time capsule) | `/app/letters` |
+| Couple Goals | `/app/goals` |
+| Peta Perjalanan | `/app/journey` |
+| Ide Date Random | `/app/date-ideas` |
+| Arcade Room (Tic-Tac-Toe, Kartu Jodoh) | `/app/arcade` |
+| Pengaturan (nama, tanggal jadian, foto sampul, tema) | `/app/settings` |
+
+## Catatan teknis
+
+- **Tema**: toggle terang/gelap, tersimpan di `localStorage`. Palet terang mengikuti warna yang
+  diberikan (`#FF5E8A`, `#FFB6C1`, `#FFD166`, `#FFF8FB`, `#2B2B2B`); palet gelap memakai aksen yang
+  sama di atas latar gelap.
+- **Font**: Poppins (heading), Inter (body), dan stack sistem Apple (`SF Pro Display` dengan
+  fallback) untuk angka/counter.
+- **Foto sampul landing page**: diunggah langsung dari dalam aplikasi (Pengaturan → Foto Sampul),
+  disimpan di bucket publik `public-covers`, jadi Ruth atau Michael bisa menggantinya kapan saja
+  tanpa perlu ubah kode.
+- **Arcade Room**: Tic-Tac-Toe punya dua mode — "Satu HP" (gantian di device yang sama, tanpa
+  backend) dan "Online" (masing-masing dari device sendiri, disinkronkan lewat tabel
+  `game_sessions` dengan polling tiap ~2.5 detik, bukan Supabase Realtime, supaya tetap konsisten
+  dengan model sync aplikasi ini). Kartu Jodoh murni lokal, tanpa backend.
+- **Galeri**: upload banyak foto sekaligus (multi-select) di `/app/gallery`, disimpan di bucket
+  privat `couple-photos`. Kartu Galeri di beranda otomatis loop lewat semua foto tiap 3,5 detik.
+- **Surat Masa Depan** dibaca lewat `future_letters_view`, yang menyembunyikan kolom `content` di
+  server sampai `unlock_date` tercapai — jadi isinya benar-benar tidak terkirim ke browser sebelum
+  waktunya, bukan cuma disembunyikan di UI.
+- Sinkronisasi antar device memakai refetch-on-focus (react-query), bukan realtime instan — cukup
+  buka ulang/pindah tab untuk melihat perubahan dari pasangan.
+
+## Scripts
+
+```bash
+npm run dev      # development server
+npm run build    # type-check + production build
+npm run preview  # preview hasil build
+```
+
+## Deploy (Vercel)
+
+Repo ini sudah siap deploy sebagai static Vite app:
+
+1. Push repo ini ke GitHub (sekali saja).
+2. Di [vercel.com](https://vercel.com), **Add New → Project → Import** repo GitHub-nya. Vercel
+   otomatis mendeteksi framework Vite — tidak perlu ubah build command/output.
+3. Di step **Environment Variables**, tambahkan:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   
+   (Nilainya sama seperti isi `.env.local` kamu — lihat langkah setup Supabase di atas.)
+4. Klik **Deploy**.
+
+[`vercel.json`](vercel.json) di root sudah berisi rewrite rule supaya semua route React Router
+(misalnya `/app/wishlist`) tetap kebuka dengan benar walau diakses langsung/refresh, bukan 404.
+
+Setiap `git push` ke branch utama setelah ini akan otomatis re-deploy.
