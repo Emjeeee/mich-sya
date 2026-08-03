@@ -1,11 +1,21 @@
 -- Arcade Room v2: generalizes game_sessions from tic-tac-toe-only to any
 -- online-capable game, and adds a scoreboard/leaderboard table.
 -- Additive on top of 0003_arcade.sql (which may already be applied live) —
--- nothing here edits or drops existing data.
+-- nothing here edits or drops existing data. Safe to re-run in full.
 
 -- `board` was tic-tac-toe-specific; `state` holds whatever shape each game
--- needs (a 9-cell array, a 7x6 grid, a {scores} object, etc).
-alter table game_sessions rename column board to state;
+-- needs (a 9-cell array, a 7x6 grid, a {scores} object, etc). Guarded so
+-- re-running this script after a partial previous run doesn't error on an
+-- already-renamed column.
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_name = 'game_sessions' and column_name = 'board'
+  ) then
+    alter table game_sessions rename column board to state;
+  end if;
+end $$;
 
 alter table game_sessions drop constraint if exists game_sessions_game_type_check;
 alter table game_sessions add constraint game_sessions_game_type_check
@@ -29,9 +39,14 @@ create table if not exists game_scores (
 
 alter table game_scores enable row level security;
 
+drop policy if exists "scores: members can select" on game_scores;
 create policy "scores: members can select"
   on game_scores for select using (couple_id = my_couple_id());
+
+drop policy if exists "scores: members can insert" on game_scores;
 create policy "scores: members can insert"
   on game_scores for insert with check (couple_id = my_couple_id());
+
+drop policy if exists "scores: members can delete" on game_scores;
 create policy "scores: members can delete"
   on game_scores for delete using (couple_id = my_couple_id());
