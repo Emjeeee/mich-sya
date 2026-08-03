@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCouple } from '@/contexts/CoupleContext'
-import { useTheme } from '@/contexts/ThemeContext'
 import { cn } from '@/lib/utils'
-import { MoonIcon, SunIcon, LogoutIcon } from '@/components/ui/icons'
+import { LogoutIcon } from '@/components/ui/icons'
+import { ThemeSwitcher } from './ThemeSwitcher'
 
 export function AccountMenu({ collapsed }: { collapsed: boolean }) {
   const { user, signOut } = useAuth()
   const { youLabel } = useCouple()
-  const { theme, toggleTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -57,16 +56,10 @@ export function AccountMenu({ collapsed }: { collapsed: boolean }) {
             </div>
           </div>
 
-          <button
-            onClick={() => {
-              toggleTheme()
-              setOpen(false)
-            }}
-            className="flex w-full items-center gap-3 px-4 py-3 text-sm text-text transition hover:bg-secondary/10"
-          >
-            {theme === 'dark' ? <SunIcon className="h-4 w-4" /> : <MoonIcon className="h-4 w-4" />}
-            Mode {theme === 'dark' ? 'Terang' : 'Gelap'}
-          </button>
+          <div className="px-4 py-3">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Tema</p>
+            <ThemeSwitcher />
+          </div>
 
           <button
             onClick={() => {

@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   Light & Dark: same minimal shape language, just inverted.
+   ============================================================ */
 :root {
   --color-bg: #fff8fb;
   --color-text: #2b2b2b;
@@ -11,9 +14,15 @@
   --color-card: #ffffff;
   --color-border: rgba(43, 43, 43, 0.08);
   --color-muted: #8a7f85;
+
+  --font-heading: 'Poppins', sans-serif;
+  --radius-card: 1.25rem;
+  --shadow-card: 0 1px 2px rgba(43, 43, 43, 0.06);
+  --card-duration: 200ms;
+  --card-ease: ease;
 }
 
-.dark {
+[data-theme='dark'] {
   --color-bg: #15121c;
   --color-text: #f5f0f6;
   --color-primary: #ff5e8a;
@@ -22,6 +31,58 @@
   --color-card: #1f1b29;
   --color-border: rgba(255, 255, 255, 0.08);
   --color-muted: #a89fae;
+
+  --font-heading: 'Poppins', sans-serif;
+  --radius-card: 1.25rem;
+  --shadow-card: none;
+  --card-duration: 200ms;
+  --card-ease: ease;
+}
+
+/* ============================================================
+   Michael Mode — futuristic & minimalist: near-black canvas,
+   sharp corners, violet/magenta glow, fast linear motion.
+   ============================================================ */
+[data-theme='michael'] {
+  /* transparent so the animated dot canvas (fixed behind everything) shows
+     through page-level surfaces — body below has its own solid #09090b. */
+  --color-bg: transparent;
+  --color-text: #f8fafc;
+  --color-primary: #8b5cf6;
+  --color-secondary: #ec4899;
+  --color-accent: #ec4899;
+  --color-card: #18181b;
+  --color-border: rgba(248, 250, 252, 0.08);
+  --color-muted: rgba(248, 250, 252, 0.6);
+
+  --font-heading: 'Space Grotesk', sans-serif;
+  --radius-card: 0.5rem;
+  --shadow-card: 0 0 0 1px rgba(139, 92, 246, 0.15), 0 0 24px rgba(139, 92, 246, 0.06);
+  --card-duration: 150ms;
+  --card-ease: linear;
+}
+
+/* ============================================================
+   Tasya Mode — soft & girlish: pink-marble-and-gold, extra
+   rounded, blush glow, gentle bouncy motion.
+   ============================================================ */
+[data-theme='tasya'] {
+  /* transparent so the drifting cloud background (fixed behind everything)
+     shows through page-level surfaces — body below has its own solid fill. */
+  --color-bg: transparent;
+  --color-text: #5a4a42;
+  --color-primary: #e8a0b4;
+  --color-secondary: #f2c9d6;
+  --color-accent: #c9974d;
+  --color-card: #fffbf8;
+  --color-border: rgba(201, 151, 77, 0.25);
+  --color-muted: rgba(90, 74, 66, 0.55);
+
+  --font-heading: 'Quicksand', sans-serif;
+  --radius-card: 1.75rem;
+  --shadow-card: 0 10px 30px rgba(232, 160, 180, 0.22);
+  --card-duration: 350ms;
+  --card-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 * {
@@ -43,7 +104,143 @@ body {
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
+/* Solid backdrop for Michael Mode's dot canvas — --color-bg is transparent
+   in that theme so page surfaces let the canvas show through; this keeps
+   the very base layer opaque instead of falling through to white. */
+[data-theme='michael'] body {
+  background-color: #09090b;
+}
+
+/* Soft sky backdrop for Tasya Mode's cloud canvas — see --color-bg above. */
+[data-theme='tasya'] body {
+  background: linear-gradient(180deg, #fdeef3 0%, #faf3ee 55%, #f7ece1 100%);
+}
+
+/* Shared card shell: every theme gets its own shape/shadow/motion
+   automatically through the CSS variables above, plus a themed
+   decorative touch and hover feel defined per theme below. */
+.card {
+  position: relative;
+  transition-property: transform, box-shadow, border-color;
+  transition-duration: var(--card-duration);
+  transition-timing-function: var(--card-ease);
+}
+
+[data-theme='light'] .card:hover,
+[data-theme='dark'] .card:hover {
+  transform: translateY(-1px);
+}
+
+[data-theme='michael'] .card {
+  border-color: rgba(139, 92, 246, 0.18);
+}
+[data-theme='michael'] .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 14%;
+  right: 14%;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--color-primary) 35%,
+    var(--color-secondary) 65%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  filter: drop-shadow(0 0 4px rgba(139, 92, 246, 0.65));
+  opacity: 0.9;
+  animation: michael-scan 5s ease-in-out infinite;
+}
+
+@keyframes michael-scan {
+  0%, 100% { background-position: 0% 0%; }
+  50% { background-position: 100% 0%; }
+}
+[data-theme='michael'] .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.35), 0 0 32px rgba(139, 92, 246, 0.18);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+[data-theme='tasya'] .card {
+  overflow: hidden;
+}
+[data-theme='tasya'] .card::after {
+  content: '';
+  position: absolute;
+  top: -24px;
+  right: -24px;
+  width: 90px;
+  height: 90px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(232, 160, 180, 0.3), transparent 70%);
+  pointer-events: none;
+}
+[data-theme='tasya'] .card:hover {
+  transform: translateY(-3px) scale(1.01);
+}
+
 .leaflet-container {
   background-color: var(--color-card) !important;
   border-radius: 1.25rem;
+}
+
+/* ============================================================
+   Tasya Mode's drifting cloud background. Each cloud is one div:
+   a wide oval plus two smaller puffs (::before/::after) overlapping
+   on top — the classic three-bump CSS cloud shape.
+   ============================================================ */
+.tasya-cloud {
+  position: absolute;
+  left: 0;
+  border-radius: 50%;
+  filter: blur(1px);
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 255, 255, 0.95),
+    rgba(246, 217, 228, 0.85) 55%,
+    rgba(232, 160, 180, 0.5) 100%
+  );
+  box-shadow: 0 12px 40px rgba(232, 160, 180, 0.25);
+  animation-name: cloud-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.tasya-cloud::before,
+.tasya-cloud::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+}
+.tasya-cloud::before {
+  width: 62%;
+  height: 62%;
+  top: -34%;
+  left: 12%;
+}
+.tasya-cloud::after {
+  width: 46%;
+  height: 46%;
+  top: -20%;
+  right: 8%;
+}
+
+@keyframes cloud-drift {
+  0% { transform: translateX(-25vw) translateY(0); }
+  50% { transform: translateX(50vw) translateY(-14px); }
+  100% { transform: translateX(120vw) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tasya-cloud {
+    animation: none;
+    transform: translateX(20vw);
+  }
+  [data-theme='michael'] .card::before {
+    animation: none;
+  }
 }

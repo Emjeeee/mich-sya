@@ -20,6 +20,9 @@ Buka **SQL Editor** di dashboard Supabase, lalu jalankan berurutan:
    `game_sessions` untuk mode online Arcade Room.
 4. [`supabase/migrations/0004_gallery.sql`](supabase/migrations/0004_gallery.sql) — tabel
    `gallery_photos` untuk upload foto banyak sekaligus di menu Galeri.
+5. [`supabase/migrations/0005_arcade_v2.sql`](supabase/migrations/0005_arcade_v2.sql) — generalisasi
+   `game_sessions` (kolom `board` → `state`, dukung 6 game online) + tabel `game_scores` untuk
+   papan skor/leaderboard Arcade Room.
 
 ### 3. Install & konfigurasi
 ```bash
@@ -66,23 +69,30 @@ disimpan di Supabase (Postgres), bukan hanya di browser.
 | Couple Goals | `/app/goals` |
 | Peta Perjalanan | `/app/journey` |
 | Ide Date Random | `/app/date-ideas` |
-| Arcade Room (Tic-Tac-Toe, Kartu Jodoh) | `/app/arcade` |
+| Arcade Room (20 mini game, lokal & online, papan skor) | `/app/arcade` |
 | Pengaturan (nama, tanggal jadian, foto sampul, tema) | `/app/settings` |
 
 ## Catatan teknis
 
-- **Tema**: toggle terang/gelap, tersimpan di `localStorage`. Palet terang mengikuti warna yang
-  diberikan (`#FF5E8A`, `#FFB6C1`, `#FFD166`, `#FFF8FB`, `#2B2B2B`); palet gelap memakai aksen yang
-  sama di atas latar gelap.
+- **Tema**: 4 pilihan (Terang, Gelap, Michael Mode, Tasya Mode), tersimpan di `localStorage`,
+  dipilih lewat `ThemeSwitcher` (menu akun sidebar, Pengaturan, atau sheet "Lainnya" di mobile).
+  Diterapkan lewat atribut `data-theme` di `<html>` + CSS variable per tema — lihat `src/index.css`.
+  Michael Mode pakai palet hitam/violet/magenta; Tasya Mode pakai palet snow/dusty rose/champagne.
+- **Ikon**: seluruh ikon navigasi, kartu dashboard, dan game pakai set ikon pixel/8-bit buatan
+  sendiri (`src/components/ui/pixel-icons.tsx`, bitmap 8×8 di-render sebagai `<rect>` SVG) — bukan
+  emoji atau library eksternal.
 - **Font**: Poppins (heading), Inter (body), dan stack sistem Apple (`SF Pro Display` dengan
   fallback) untuk angka/counter.
 - **Foto sampul landing page**: diunggah langsung dari dalam aplikasi (Pengaturan → Foto Sampul),
   disimpan di bucket publik `public-covers`, jadi Ruth atau Michael bisa menggantinya kapan saja
   tanpa perlu ubah kode.
-- **Arcade Room**: Tic-Tac-Toe punya dua mode — "Satu HP" (gantian di device yang sama, tanpa
-  backend) dan "Online" (masing-masing dari device sendiri, disinkronkan lewat tabel
-  `game_sessions` dengan polling tiap ~2.5 detik, bukan Supabase Realtime, supaya tetap konsisten
-  dengan model sync aplikasi ini). Kartu Jodoh murni lokal, tanpa backend.
+- **Arcade Room**: 20 mini game lewat satu registry (`src/lib/games/registry.ts`) + route dinamis
+  `/app/arcade/:gameKey`. 6 game (Tic-Tac-Toe, Connect Four, Batu Gunting Kertas, Tebak Kata, Adu
+  Dadu, Duel Trivia) punya dua mode — "Satu HP" (pass-and-play lokal, tanpa backend) dan "Online"
+  (device terpisah, disinkronkan lewat tabel `game_sessions` dengan polling ~2.5 detik, bukan
+  Supabase Realtime, konsisten dengan model sync aplikasi ini). 14 game lainnya murni lokal
+  (solo atau co-op satu layar). Skor/kemenangan dari mode online tercatat di `game_scores` dan
+  ditampilkan sebagai papan skor per game (`Leaderboard.tsx`).
 - **Galeri**: upload banyak foto sekaligus (multi-select) di `/app/gallery`, disimpan di bucket
   privat `couple-photos`. Kartu Galeri di beranda otomatis loop lewat semua foto tiap 3,5 detik.
 - **Surat Masa Depan** dibaca lewat `future_letters_view`, yang menyembunyikan kolom `content` di

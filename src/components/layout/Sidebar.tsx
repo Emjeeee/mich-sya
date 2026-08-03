@@ -4,6 +4,7 @@ import { NAV_ITEMS } from '@/lib/navItems'
 import { cn } from '@/lib/utils'
 import { AccountMenu } from './AccountMenu'
 import { Logo } from './Logo'
+import { ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/pixel-icons'
 
 function getInitialCollapsed() {
   return localStorage.getItem('sidebar-collapsed') === '1'
@@ -27,9 +28,9 @@ export function Sidebar() {
         onClick={() => setCollapsed((c) => !c)}
         aria-label={collapsed ? 'Perbesar sidebar' : 'Ciutkan sidebar'}
         title={collapsed ? 'Perbesar sidebar' : 'Ciutkan sidebar'}
-        className="absolute -right-3 top-9 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-xs text-muted shadow-sm transition hover:text-primary"
+        className="absolute -right-4 top-9 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted shadow-sm transition hover:bg-secondary/15 hover:text-primary"
       >
-        {collapsed ? '›' : '‹'}
+        {collapsed ? <ChevronRightIcon className="h-3.5 w-3.5" /> : <ChevronLeftIcon className="h-3.5 w-3.5" />}
       </button>
 
       <div className={cn('mb-8 flex items-center gap-2 px-2', collapsed && 'justify-center px-0')}>
@@ -52,7 +53,7 @@ export function Sidebar() {
               )
             }
           >
-            <span className="text-lg">{item.icon}</span>
+            <item.icon className="h-5 w-5 shrink-0" />
             {!collapsed && item.label}
           </NavLink>
         ))}

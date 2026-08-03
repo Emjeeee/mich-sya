@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useCouple } from '@/contexts/CoupleContext'
 import { DaysTogetherCard } from '@/components/dashboard/DaysTogetherCard'
 import { AnniversaryCard } from '@/components/dashboard/AnniversaryCard'
@@ -6,15 +7,19 @@ import { DailyVibeCard } from '@/components/dashboard/DailyVibeCard'
 import { ArcadeCard } from '@/components/dashboard/ArcadeCard'
 import { DateIdeasCard } from '@/components/dashboard/DateIdeasCard'
 import { GalleryCard } from '@/components/dashboard/GalleryCard'
+import { TodayCard } from '@/components/dashboard/TodayCard'
 import { NAV_ITEMS } from '@/lib/navItems'
 import { NavLink } from 'react-router-dom'
 import { useTypewriter } from '@/hooks/useTypewriter'
 import { GREETING_PHRASES } from '@/data/greetings'
+import { shuffle } from '@/lib/utils'
 
 export function DashboardPage() {
   const { couple, youLabel } = useCouple()
   const quickLinks = NAV_ITEMS.filter((item) => item.to !== '/app' && item.to !== '/app/settings')
-  const typedGreeting = useTypewriter(GREETING_PHRASES)
+  // Shuffled once per mount so the order (not just the pool) differs every visit.
+  const shuffledGreetings = useMemo(() => shuffle(GREETING_PHRASES), [])
+  const typedGreeting = useTypewriter(shuffledGreetings)
 
   return (
     <div className="space-y-6">
@@ -29,11 +34,12 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
         <DaysTogetherCard anniversaryDate={couple?.anniversary_date ?? null} />
         <AnniversaryCard anniversaryDate={couple?.anniversary_date ?? null} />
+        <GalleryCard />
+        <TodayCard />
         <QuoteCard />
         <DailyVibeCard />
         <ArcadeCard />
         <DateIdeasCard />
-        <GalleryCard />
       </div>
 
       <div>
@@ -45,7 +51,7 @@ export function DashboardPage() {
               to={item.to}
               className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-card p-3 text-center text-xs font-medium text-text transition hover:border-primary hover:text-primary"
             >
-              <span className="text-2xl">{item.icon}</span>
+              <item.icon className="h-6 w-6" />
               {item.label}
             </NavLink>
           ))}

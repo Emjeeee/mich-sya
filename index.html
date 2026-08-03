@@ -2,23 +2,26 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/MichSya_Logo.png" />
+    <link rel="icon" type="image/png" href="/MichSya_Logo_v2.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="MichSya — ruang kenangan pribadi Michael & Ruth: wishlist, memories, jadwal date, surat masa depan, dan lainnya." />
     <title>MichSya</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&family=Space+Grotesk:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
     <script>
       // Applied synchronously before React mounts to avoid a flash of the wrong theme.
       (function () {
+        var valid = ['light', 'dark', 'michael', 'tasya']
         var stored = localStorage.getItem('theme')
         var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-        var theme = stored || (prefersDark ? 'dark' : 'light')
-        if (theme === 'dark') document.documentElement.classList.add('dark')
+        var theme = valid.indexOf(stored) !== -1 ? stored : prefersDark ? 'dark' : 'light'
+        document.documentElement.setAttribute('data-theme', theme)
+        // Tailwind's `dark:` variant still applies to any dark-background theme.
+        if (theme === 'dark' || theme === 'michael') document.documentElement.classList.add('dark')
       })()
     </script>
   </head>

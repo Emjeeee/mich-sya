@@ -10,7 +10,7 @@ export function Logo({ className }: { className?: string }) {
         className,
       )}
     >
-      <img src="/MichSya_Logo.png" alt="MichSya" className="h-full w-full object-contain" />
+      <img src="/MichSya_Logo_v2.png" alt="MichSya" className="h-full w-full object-contain" />
     </span>
   )
 }

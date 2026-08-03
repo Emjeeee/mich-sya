@@ -3,8 +3,9 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { MOBILE_PRIMARY_COUNT, NAV_ITEMS } from '@/lib/navItems'
 import { cn } from '@/lib/utils'
 import { Modal } from '@/components/ui/Modal'
-import { ThemeToggle } from './ThemeToggle'
+import { ThemeSwitcher } from './ThemeSwitcher'
 import { LogoutIcon } from '@/components/ui/icons'
+import { DotsIcon } from '@/components/ui/pixel-icons'
 import { useAuth } from '@/contexts/AuthContext'
 
 export function BottomNav() {
@@ -31,7 +32,7 @@ export function BottomNav() {
               )
             }
           >
-            <span className="text-lg leading-none">{item.icon}</span>
+            <item.icon className="h-5 w-5" />
             {item.label}
           </NavLink>
         ))}
@@ -42,7 +43,7 @@ export function BottomNav() {
             isRestActive ? 'text-primary' : 'text-muted',
           )}
         >
-          <span className="text-lg leading-none">⋯</span>
+          <DotsIcon className="h-5 w-5" />
           Lainnya
         </button>
       </nav>
@@ -61,16 +62,17 @@ export function BottomNav() {
                 )
               }
             >
-              <span className="text-2xl">{item.icon}</span>
+              <item.icon className="h-6 w-6" />
               {item.label}
             </NavLink>
           ))}
         </div>
-        <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-          <ThemeToggle />
+        <div className="mt-5 border-t border-border pt-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">Tema</p>
+          <ThemeSwitcher />
           <button
             onClick={() => signOut()}
-            className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-red-500"
+            className="mt-4 flex items-center gap-1.5 text-sm font-medium text-muted hover:text-red-500"
           >
             <LogoutIcon className="h-4 w-4" />
             Keluar

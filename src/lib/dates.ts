@@ -106,3 +106,8 @@ export function toDuration(ms: number): Duration {
 export function pad2(n: number): string {
   return n.toString().padStart(2, '0')
 }
+
+/** Formats a JS Date's *local* calendar date as 'YYYY-MM-DD' (no UTC shifting). */
+export function formatLocalDate(date: Date): string {
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`
+}

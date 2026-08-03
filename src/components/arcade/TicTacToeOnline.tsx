@@ -1,14 +1,16 @@
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { TicTacToeBoard } from './TicTacToeBoard'
-import { useTicTacToeSession } from '@/hooks/useTicTacToeSession'
+import { useOnlineGameSession } from '@/hooks/useOnlineGameSession'
+import { useGameScores } from '@/hooks/useGameScores'
 import { useCouple } from '@/contexts/CoupleContext'
-import { useAuth } from '@/contexts/AuthContext'
+import { EMPTY_BOARD, checkWinner, type Cell } from '@/lib/tictactoe'
 
 export function TicTacToeOnline() {
   const { couple, isLinked, partnerLabel, youLabel } = useCouple()
-  const { user } = useAuth()
-  const { data: session, isLoading, startGame, joinGame, makeMove } = useTicTacToeSession()
+  const { data: session, isLoading, user, startGame, joinGame, updateSession } =
+    useOnlineGameSession('tictactoe', EMPTY_BOARD)
+  const { recordScore } = useGameScores('tictactoe')
 
   if (!couple || !isLinked) {
     return (
@@ -36,7 +38,7 @@ export function TicTacToeOnline() {
           </p>
         )}
         <p className="text-sm text-muted">Belum ada game aktif. Mulai satu untuk main bareng pasangan.</p>
-        <Button size="sm" disabled={startGame.isPending} onClick={() => startGame.mutate()}>
+        <Button size="sm" disabled={startGame.isPending} onClick={() => startGame.mutate(undefined)}>
           {startGame.isPending ? 'Membuat...' : 'Mulai Game Baru'}
         </Button>
       </Card>
@@ -66,9 +68,32 @@ export function TicTacToeOnline() {
     )
   }
 
-  const mySymbol = isPlayerX ? 'x' : 'o'
+  const mySymbol: Cell = isPlayerX ? 'x' : 'o'
   const isMyTurn = session.turn === user?.id
   const result = session.winner
+  const board = session.state as Cell[]
+
+  function handleCellClick(index: number) {
+    if (!session) return
+    const next = [...board]
+    next[index] = mySymbol
+    const outcome = checkWinner(next)
+    const nextTurn = isPlayerX ? session.player_o : session.player_x
+
+    updateSession.mutate({
+      id: session.id,
+      state: next,
+      turn: outcome ? null : nextTurn,
+      winner: outcome,
+      status: outcome ? 'finished' : 'active',
+    })
+
+    if (outcome) {
+      const winnerUserId =
+        outcome === 'draw' ? null : outcome === mySymbol ? user!.id : nextTurn
+      recordScore.mutate({ winnerUserId })
+    }
+  }
 
   return (
     <Card className="space-y-4">
@@ -76,11 +101,7 @@ export function TicTacToeOnline() {
         Kamu bermain sebagai <span className="font-semibold text-text">{mySymbol === 'x' ? '✕' : '○'}</span>
       </p>
 
-      <TicTacToeBoard
-        board={session.board as ('' | 'x' | 'o')[]}
-        disabled={!isMyTurn || !!result}
-        onCellClick={(index) => makeMove.mutate({ session, index })}
-      />
+      <TicTacToeBoard board={board} disabled={!isMyTurn || !!result} onCellClick={handleCellClick} />
 
       <div className="text-center">
         {result ? (
@@ -93,7 +114,7 @@ export function TicTacToeOnline() {
           </p>
         )}
         {result && (
-          <Button size="sm" variant="secondary" disabled={startGame.isPending} onClick={() => startGame.mutate()}>
+          <Button size="sm" variant="secondary" disabled={startGame.isPending} onClick={() => startGame.mutate(undefined)}>
             Main Lagi
           </Button>
         )}

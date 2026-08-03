@@ -13,6 +13,7 @@ export type {
   GameStatus,
   GameWinner,
   GameSessionRow,
+  GameScoreRow,
   GalleryPhotoRow,
 } from './database'
 

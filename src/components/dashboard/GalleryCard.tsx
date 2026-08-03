@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { useGallery, useGalleryUrls } from '@/hooks/useGallery'
+import { ImageIcon } from '@/components/ui/pixel-icons'
 
 const LOOP_INTERVAL_MS = 3500
 
@@ -61,7 +62,7 @@ export function GalleryCard() {
           to="/app/gallery"
           className="flex aspect-[16/9] w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border text-center transition hover:border-primary"
         >
-          <span className="text-2xl">🖼️</span>
+          <ImageIcon className="h-7 w-7 text-muted" />
           <p className="text-sm text-muted">Belum ada foto — upload di menu Galeri</p>
         </Link>
       )}

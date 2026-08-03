@@ -16,7 +16,8 @@ export default {
         muted: 'var(--color-muted)',
       },
       fontFamily: {
-        heading: ['Poppins', 'sans-serif'],
+        // Each theme overrides --font-heading (see index.css); Poppins is the fallback.
+        heading: ['var(--font-heading)', 'Poppins', 'sans-serif'],
         body: ['Inter', 'sans-serif'],
         number: [
           '-apple-system',
@@ -30,10 +31,17 @@ export default {
         ],
       },
       borderRadius: {
-        xl2: '1.25rem',
+        xl2: 'var(--radius-card)',
       },
       boxShadow: {
         glow: '0 8px 30px rgba(255, 94, 138, 0.15)',
+        card: 'var(--shadow-card)',
+      },
+      transitionTimingFunction: {
+        theme: 'var(--card-ease)',
+      },
+      transitionDuration: {
+        theme: 'var(--card-duration)',
       },
       keyframes: {
         fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },

@@ -5,12 +5,15 @@ import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
 import { Input, Label, Textarea } from '@/components/ui/Input'
 import { StatusPill } from '@/components/ui/StatusPill'
+import { ScheduleCalendar } from '@/components/schedule/ScheduleCalendar'
+import { CalendarIcon, ListIcon } from '@/components/ui/pixel-icons'
 import { todayDateString } from '@/lib/dates'
 import { cn } from '@/lib/utils'
-import type { ScheduleStatus } from '@/types'
+import type { ScheduleRow, ScheduleStatus } from '@/types'
 
 export function SchedulePage() {
   const { data, isLoading, addSchedule, updateStatus, removeSchedule } = useSchedule()
+  const [viewMode, setViewMode] = useState<'list' | 'calendar'>('calendar')
   const [tab, setTab] = useState<'upcoming' | 'past'>('upcoming')
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
@@ -18,6 +21,7 @@ export function SchedulePage() {
   const [location, setLocation] = useState('')
   const [date, setDate] = useState(todayDateString())
   const [time, setTime] = useState('')
+  const [selectedItem, setSelectedItem] = useState<ScheduleRow | null>(null)
 
   const today = todayDateString()
   const filtered = useMemo(() => {
@@ -40,6 +44,11 @@ export function SchedulePage() {
     return groups
   }, [filtered])
 
+  function openAddModal(prefillDate?: string) {
+    setDate(prefillDate ?? todayDateString())
+    setOpen(true)
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     if (!title.trim() || !date) return
@@ -59,87 +68,129 @@ export function SchedulePage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h1 className="font-heading text-2xl font-bold text-text">Jadwal Date</h1>
           <p className="text-sm text-muted">Rencana kencan kita berdua</p>
         </div>
-        <Button size="sm" onClick={() => setOpen(true)}>
+        <Button size="sm" onClick={() => openAddModal()}>
           + Tambah
         </Button>
       </div>
 
-      <div className="flex gap-2">
-        {(['upcoming', 'past'] as const).map((t) => (
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex gap-2">
           <button
-            key={t}
-            onClick={() => setTab(t)}
+            onClick={() => setViewMode('calendar')}
             className={cn(
-              'rounded-full px-4 py-1.5 text-sm font-medium transition',
-              tab === t ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
+              'flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition',
+              viewMode === 'calendar' ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
             )}
           >
-            {t === 'upcoming' ? 'Akan Datang' : 'Sudah Lewat'}
+            <CalendarIcon className="h-3.5 w-3.5" />
+            Kalender
           </button>
-        ))}
+          <button
+            onClick={() => setViewMode('list')}
+            className={cn(
+              'flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition',
+              viewMode === 'list' ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
+            )}
+          >
+            <ListIcon className="h-3.5 w-3.5" />
+            Daftar
+          </button>
+        </div>
+
+        {viewMode === 'list' && (
+          <div className="flex gap-2">
+            {(['upcoming', 'past'] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setTab(t)}
+                className={cn(
+                  'rounded-full px-4 py-1.5 text-sm font-medium transition',
+                  tab === t ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
+                )}
+              >
+                {t === 'upcoming' ? 'Akan Datang' : 'Sudah Lewat'}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {isLoading && <p className="text-sm text-muted">Memuat...</p>}
-      {!isLoading && filtered.length === 0 && (
-        <p className="text-sm text-muted">Belum ada jadwal di sini.</p>
-      )}
 
-      <div className="space-y-6">
-        {Array.from(grouped.entries()).map(([month, items]) => (
-          <div key={month}>
-            <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-              {month}
-            </h3>
-            <div className="space-y-3">
-              {items.map((s) => (
-                <Card key={s.id} className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-heading text-sm font-semibold text-text">{s.title}</p>
-                      <StatusPill status={s.status} />
-                    </div>
-                    <p className="mt-0.5 text-xs text-muted">
-                      {new Date(s.scheduled_date + 'T00:00:00').toLocaleDateString('id-ID', {
-                        day: 'numeric',
-                        month: 'long',
-                      })}
-                      {s.scheduled_time && ` · ${s.scheduled_time.slice(0, 5)}`}
-                      {s.location && ` · ${s.location}`}
-                    </p>
-                    {s.description && <p className="mt-1 text-sm text-text">{s.description}</p>}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <select
-                      value={s.status}
-                      onChange={(e) =>
-                        updateStatus.mutate({ id: s.id, status: e.target.value as ScheduleStatus })
-                      }
-                      className="rounded-lg border border-border bg-bg px-2 py-1 text-xs text-text"
+      {viewMode === 'calendar' ? (
+        <Card>
+          <ScheduleCalendar
+            schedules={data ?? []}
+            onAddOnDate={openAddModal}
+            onSelectItem={setSelectedItem}
+          />
+        </Card>
+      ) : (
+        <>
+          {!isLoading && filtered.length === 0 && (
+            <p className="text-sm text-muted">Belum ada jadwal di sini.</p>
+          )}
+          <div className="space-y-6">
+            {Array.from(grouped.entries()).map(([month, items]) => (
+              <div key={month}>
+                <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
+                  {month}
+                </h3>
+                <div className="space-y-3">
+                  {items.map((s) => (
+                    <Card
+                      key={s.id}
+                      className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <option value="planned">Direncanakan</option>
-                      <option value="confirmed">Terkonfirmasi</option>
-                      <option value="completed">Selesai</option>
-                      <option value="cancelled">Dibatalkan</option>
-                    </select>
-                    <button
-                      onClick={() => removeSchedule.mutate(s.id)}
-                      className="text-xs text-muted hover:text-red-500"
-                      aria-label="Hapus"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </Card>
-              ))}
-            </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-heading text-sm font-semibold text-text">{s.title}</p>
+                          <StatusPill status={s.status} />
+                        </div>
+                        <p className="mt-0.5 text-xs text-muted">
+                          {new Date(s.scheduled_date + 'T00:00:00').toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                          })}
+                          {s.scheduled_time && ` · ${s.scheduled_time.slice(0, 5)}`}
+                          {s.location && ` · ${s.location}`}
+                        </p>
+                        {s.description && <p className="mt-1 text-sm text-text">{s.description}</p>}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={s.status}
+                          onChange={(e) =>
+                            updateStatus.mutate({ id: s.id, status: e.target.value as ScheduleStatus })
+                          }
+                          className="rounded-lg border border-border bg-bg px-2 py-1 text-xs text-text"
+                        >
+                          <option value="planned">Direncanakan</option>
+                          <option value="confirmed">Terkonfirmasi</option>
+                          <option value="completed">Selesai</option>
+                          <option value="cancelled">Dibatalkan</option>
+                        </select>
+                        <button
+                          onClick={() => removeSchedule.mutate(s.id)}
+                          className="text-xs text-muted hover:text-red-500"
+                          aria-label="Hapus"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
 
       <Modal open={open} onClose={() => setOpen(false)} title="Tambah Jadwal Date">
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -169,6 +220,61 @@ export function SchedulePage() {
             {addSchedule.isPending ? 'Menyimpan...' : 'Simpan'}
           </Button>
         </form>
+      </Modal>
+
+      <Modal
+        open={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        title={selectedItem?.title ?? ''}
+      >
+        {selectedItem && (
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <StatusPill status={selectedItem.status} />
+              <p className="text-xs text-muted">
+                {new Date(selectedItem.scheduled_date + 'T00:00:00').toLocaleDateString('id-ID', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+                {selectedItem.scheduled_time && ` · ${selectedItem.scheduled_time.slice(0, 5)}`}
+              </p>
+            </div>
+            {selectedItem.location && (
+              <p className="text-sm text-text">📍 {selectedItem.location}</p>
+            )}
+            {selectedItem.description && <p className="text-sm text-text">{selectedItem.description}</p>}
+
+            <div>
+              <Label>Ubah status</Label>
+              <select
+                value={selectedItem.status}
+                onChange={(e) => {
+                  const status = e.target.value as ScheduleStatus
+                  updateStatus.mutate({ id: selectedItem.id, status })
+                  setSelectedItem({ ...selectedItem, status })
+                }}
+                className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text"
+              >
+                <option value="planned">Direncanakan</option>
+                <option value="confirmed">Terkonfirmasi</option>
+                <option value="completed">Selesai</option>
+                <option value="cancelled">Dibatalkan</option>
+              </select>
+            </div>
+
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => {
+                removeSchedule.mutate(selectedItem.id)
+                setSelectedItem(null)
+              }}
+            >
+              Hapus Jadwal
+            </Button>
+          </div>
+        )}
       </Modal>
     </div>
   )

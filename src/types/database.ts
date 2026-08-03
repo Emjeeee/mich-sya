@@ -115,15 +115,15 @@ export type GalleryPhotoRow = {
   created_at: string
 }
 
-export type GameType = 'tictactoe'
+export type GameType = 'tictactoe' | 'connectfour' | 'rps' | 'hangman' | 'dice' | 'trivia'
 export type GameStatus = 'active' | 'finished'
-export type GameWinner = 'x' | 'o' | 'draw'
+export type GameWinner = 'x' | 'o' | 'draw' | 'p1' | 'p2'
 
 export type GameSessionRow = {
   id: string
   couple_id: string
   game_type: GameType
-  board: string[]
+  state: unknown // shape is per-game — tic-tac-toe: Cell[9], connect four: Cell[42], dice: {scores}, etc.
   turn: string | null
   player_x: string | null
   player_o: string | null
@@ -132,6 +132,17 @@ export type GameSessionRow = {
   created_by: string | null
   created_at: string
   updated_at: string
+}
+
+export type GameScoreRow = {
+  id: string
+  couple_id: string
+  game_key: string
+  user_id: string | null
+  winner_user_id: string | null
+  score: number | null
+  metadata: unknown
+  created_at: string
 }
 
 // supabase-js's generic table constraint (GenericTable) requires a
@@ -156,6 +167,7 @@ export type Database = {
       daily_vibes: Table<DailyVibeRow>
       game_sessions: Table<GameSessionRow>
       gallery_photos: Table<GalleryPhotoRow>
+      game_scores: Table<GameScoreRow>
     }
     Views: {
       future_letters_view: { Row: FutureLetterRow; Relationships: [] }

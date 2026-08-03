@@ -7,7 +7,7 @@ import { useCoverPhotoUpload, usePublicCoverPhoto } from '@/hooks/useCoverPhoto'
 import { Card, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input, Label } from '@/components/ui/Input'
-import { ThemeToggle } from '@/components/layout/ThemeToggle'
+import { ThemeSwitcher } from '@/components/layout/ThemeSwitcher'
 
 export function SettingsPage() {
   const { couple, youLabel } = useCouple()
@@ -155,11 +155,8 @@ export function SettingsPage() {
       </Card>
 
       <Card>
-        <CardHeader title="Tampilan" />
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-text">Tema Terang / Gelap</p>
-          <ThemeToggle />
-        </div>
+        <CardHeader title="Tampilan" subtitle="Pilih tema favorit kalian" />
+        <ThemeSwitcher />
       </Card>
 
       <Button variant="danger" size="sm" onClick={() => signOut()}>
