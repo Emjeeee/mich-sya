@@ -95,6 +95,11 @@ disimpan di Supabase (Postgres), bukan hanya di browser.
   ditampilkan sebagai papan skor per game (`Leaderboard.tsx`).
 - **Galeri**: upload banyak foto sekaligus (multi-select) di `/app/gallery`, disimpan di bucket
   privat `couple-photos`. Kartu Galeri di beranda otomatis loop lewat semua foto tiap 3,5 detik.
+- **Peta Perjalanan**: cari tempat lewat nama (Nominatim/OpenStreetMap, gratis tanpa API key) atau
+  klik langsung di peta. Titik-titik diurutkan berdasarkan tanggal kunjungan lalu dihubungkan garis
+  rute jalan sungguhan lewat OSRM (juga gratis, tanpa API key) — server demo publik OSRM, jadi
+  cocok untuk pemakaian ringan seperti ini, bukan trafik besar. Kalau OSRM tidak menemukan rute
+  darat (misal antar pulau/negara), otomatis fallback ke garis putus-putus lurus.
 - **Surat Masa Depan** dibaca lewat `future_letters_view`, yang menyembunyikan kolom `content` di
   server sampai `unlock_date` tercapai — jadi isinya benar-benar tidak terkirim ke browser sebelum
   waktunya, bukan cuma disembunyikan di UI.
