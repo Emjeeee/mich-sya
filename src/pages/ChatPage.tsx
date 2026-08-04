@@ -31,7 +31,7 @@ function groupByDay(messages: MessageRow[]) {
 export function ChatPage() {
   const { user } = useAuth()
   const { couple, isLinked, partnerLabel } = useCouple()
-  const { data: messages, isLoading, loadOlder, jumpToMessage, sendMessage, markRead, deleteMessage } =
+  const { data: messages, isLoading, loadOlder, jumpToMessage, sendMessage, markRead, deleteMessage, refetch } =
     useMessages()
   const { partnerTyping, notifyTyping } = useTypingIndicator()
   const { data: background } = useChatBackground()
@@ -43,6 +43,10 @@ export function ChatPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [backgroundOpen, setBackgroundOpen] = useState(false)
   const [highlightedId, setHighlightedId] = useState<string | null>(null)
+  // Jumping to an old search result re-anchors the whole loaded window
+  // around it (see useMessages.jumpToMessage) — there was previously no way
+  // back to the live end of the conversation short of leaving the page.
+  const [isJumped, setIsJumped] = useState(false)
 
   useEffect(() => {
     markRead()
@@ -61,8 +65,11 @@ export function ChatPage() {
   useEffect(() => {
     if (!highlightedId) return
     const el = document.getElementById(`message-${highlightedId}`)
-    if (!el) return
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    // Still clear the highlight (and re-enable auto-scroll-to-bottom above)
+    // even if the element never showed up — e.g. the target got "deleted for
+    // me" between the search result loading and being clicked — otherwise
+    // highlightedId stays truthy forever and silently disables scroll.
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     const timeout = setTimeout(() => setHighlightedId(null), 2000)
     return () => clearTimeout(timeout)
   }, [highlightedId, messages])
@@ -72,6 +79,13 @@ export function ChatPage() {
     setSearchOpen(false)
     setSearchQuery('')
     setHighlightedId(message.id)
+    setIsJumped(true)
+  }
+
+  async function jumpToLatest() {
+    await refetch()
+    setIsJumped(false)
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
   if (!couple || !isLinked) {
@@ -161,8 +175,25 @@ export function ChatPage() {
         <div ref={bottomRef} />
       </div>
 
+      {isJumped && (
+        <div className="border-t border-border px-4 py-2 text-center">
+          <button onClick={jumpToLatest} className="text-xs font-semibold text-primary hover:underline">
+            ↓ Kembali ke pesan terbaru
+          </button>
+        </div>
+      )}
+
+      {sendMessage.isError && (
+        <div className="flex items-center justify-between border-t border-red-500/30 bg-red-500/10 px-4 py-2 text-xs text-red-500">
+          <span>Pesan gagal terkirim. Coba kirim lagi.</span>
+          <button onClick={() => sendMessage.reset()} className="font-semibold hover:underline">
+            Tutup
+          </button>
+        </div>
+      )}
+
       <ChatComposer
-        onSend={(input: ComposerSendInput) => sendMessage.mutate(input)}
+        onSend={(input: ComposerSendInput) => sendMessage.mutateAsync(input)}
         onTyping={notifyTyping}
       />
 

@@ -7,6 +7,7 @@ export function useSignedChatMediaUrl(path: string | null | undefined) {
     queryKey: ['signed-chat-url', path],
     enabled: !!path,
     staleTime: 30 * 60_000,
+    gcTime: 60 * 60_000, // same reasoning as useSignedUrl — avoid evicting a still-valid signed URL
     queryFn: () => getSignedChatMediaUrl(path!),
   })
 }

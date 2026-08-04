@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useGameScores } from '@/hooks/useGameScores'
+import { useAuth } from '@/contexts/AuthContext'
 import { EMOJI_QUIZ } from '@/lib/games/wordBanks'
 
 const GAME_SECONDS = 60
@@ -21,6 +22,7 @@ export function EmojiQuizGame() {
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null)
   const [recorded, setRecorded] = useState(false)
   const { recordScore } = useGameScores('emojiquiz')
+  const { user } = useAuth()
 
   useEffect(() => {
     if (!running || timeLeft <= 0) return
@@ -32,7 +34,7 @@ export function EmojiQuizGame() {
     if (running && timeLeft === 0) {
       setRunning(false)
       if (!recorded) {
-        recordScore.mutate({ score: correct })
+        recordScore.mutate({ userId: user!.id, score: correct })
         setRecorded(true)
       }
     }

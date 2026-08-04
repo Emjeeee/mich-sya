@@ -124,7 +124,7 @@ export function ScheduleCalendar({
               <span
                 className={cn(
                   'text-xs font-medium',
-                  isToday ? 'flex h-5 w-5 items-center justify-center rounded-full bg-primary text-white' : 'text-text',
+                  isToday ? 'flex h-5 w-5 items-center justify-center rounded-full bg-primary text-onPrimary' : 'text-text',
                 )}
               >
                 {date.getDate()}

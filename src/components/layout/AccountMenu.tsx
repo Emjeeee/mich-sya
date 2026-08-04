@@ -33,7 +33,7 @@ export function AccountMenu({ collapsed }: { collapsed: boolean }) {
           open && 'bg-secondary/15',
         )}
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-white">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-semibold text-onPrimary">
           {initial}
         </span>
         {!collapsed && (
@@ -47,7 +47,7 @@ export function AccountMenu({ collapsed }: { collapsed: boolean }) {
       {open && (
         <div className="absolute bottom-full left-0 z-20 mb-2 w-64 overflow-hidden rounded-2xl border border-border bg-card shadow-lg">
           <div className="flex items-center gap-3 border-b border-border p-4">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-base font-semibold text-white">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-base font-semibold text-onPrimary">
               {initial}
             </span>
             <div className="min-w-0">

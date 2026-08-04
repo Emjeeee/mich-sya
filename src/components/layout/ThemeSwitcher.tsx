@@ -6,6 +6,7 @@ const OPTIONS: { key: Theme; label: string; dot: string }[] = [
   { key: 'dark', label: 'Gelap', dot: '#FF5E8A' },
   { key: 'michael', label: 'Michael', dot: '#8B5CF6' },
   { key: 'tasya', label: 'Tasya', dot: '#E8A0B4' },
+  { key: 'midnightgold', label: 'Midnight Gold', dot: '#D4AF37' },
 ]
 
 export function ThemeSwitcher({ className }: { className?: string }) {

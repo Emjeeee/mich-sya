@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useGameScores } from '@/hooks/useGameScores'
+import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 
 const HOLE_COUNT = 9
@@ -15,6 +16,7 @@ export function WhackAMoleGame() {
   const [recorded, setRecorded] = useState(false)
   const moleTimeout = useRef<ReturnType<typeof setTimeout>>()
   const { recordScore } = useGameScores('whackamole')
+  const { user } = useAuth()
 
   useEffect(() => {
     if (!running) return
@@ -39,7 +41,7 @@ export function WhackAMoleGame() {
 
   useEffect(() => {
     if (!running && timeLeft === 0 && !recorded) {
-      recordScore.mutate({ score })
+      recordScore.mutate({ userId: user!.id, score })
       setRecorded(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

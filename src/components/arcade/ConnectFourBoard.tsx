@@ -31,7 +31,7 @@ export function ConnectFourBoard({
                 key={row}
                 className={cn(
                   'aspect-square rounded-full',
-                  cell ? MARK_STYLE[cell] : 'bg-bg',
+                  cell ? MARK_STYLE[cell] : 'bg-card',
                 )}
               />
             )

@@ -51,7 +51,7 @@ export function DateIdeasPage() {
             onClick={() => setCategory(c.key)}
             className={cn(
               'rounded-full px-4 py-1.5 text-sm font-medium transition',
-              category === c.key ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
+              category === c.key ? 'bg-primary text-onPrimary' : 'bg-secondary/20 text-text',
             )}
           >
             {c.label}

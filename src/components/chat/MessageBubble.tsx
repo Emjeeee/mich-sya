@@ -18,9 +18,10 @@ export function MessageBubble({
   onDeleteForMe?: () => void
   onDeleteForEveryone?: () => void
 }) {
-  const needsSignedUrl = message.type === 'image' || message.type === 'video' || message.type === 'audio'
-  const { data: url } = useSignedChatMediaUrl(needsSignedUrl ? message.media_path : null)
   const isDeleted = !!message.deleted_at
+  const needsSignedUrl =
+    !isDeleted && (message.type === 'image' || message.type === 'video' || message.type === 'audio')
+  const { data: url, isError: urlError } = useSignedChatMediaUrl(needsSignedUrl ? message.media_path : null)
   const [confirmOpen, setConfirmOpen] = useState(false)
 
   return (
@@ -28,9 +29,7 @@ export function MessageBubble({
       <div
         className={cn(
           'group relative max-w-[75%] rounded-2xl px-3 py-2 shadow-sm transition-colors duration-700',
-          isOwn
-            ? 'rounded-br-sm bg-primary text-white'
-            : 'rounded-bl-sm border border-border bg-bubble text-bubbleText',
+          isOwn ? 'rounded-br-sm bg-primary text-onPrimary' : 'rounded-bl-sm bg-bubble text-bubbleText',
           highlighted && 'ring-2 ring-accent',
         )}
       >
@@ -63,19 +62,31 @@ export function MessageBubble({
             )}
             {message.type === 'image' &&
               (url ? (
-                <img src={url} alt="" className="max-h-64 rounded-lg object-cover" />
+                <img src={url} alt="" className="max-h-64 animate-fadeIn rounded-lg object-cover" />
+              ) : urlError ? (
+                <div className="flex h-32 w-32 items-center justify-center rounded-lg bg-black/10 text-xs opacity-70">
+                  Gagal memuat
+                </div>
               ) : (
                 <div className="h-32 w-32 animate-pulse rounded-lg bg-black/10" />
               ))}
             {message.type === 'video' &&
               (url ? (
                 <video src={url} controls className="max-h-64 rounded-lg" />
+              ) : urlError ? (
+                <div className="flex h-32 w-48 items-center justify-center rounded-lg bg-black/10 text-xs opacity-70">
+                  Gagal memuat
+                </div>
               ) : (
                 <div className="h-32 w-48 animate-pulse rounded-lg bg-black/10" />
               ))}
             {message.type === 'audio' &&
               (url ? (
                 <audio src={url} controls className="w-56" />
+              ) : urlError ? (
+                <div className="flex h-10 w-48 items-center justify-center rounded-lg bg-black/10 text-xs opacity-70">
+                  Gagal memuat
+                </div>
               ) : (
                 <div className="h-10 w-48 animate-pulse rounded-lg bg-black/10" />
               ))}

@@ -116,7 +116,17 @@ export type GalleryPhotoRow = {
   created_at: string
 }
 
-export type GameType = 'tictactoe' | 'connectfour' | 'rps' | 'hangman' | 'dice' | 'trivia'
+export type GameType =
+  | 'tictactoe'
+  | 'connectfour'
+  | 'rps'
+  | 'hangman'
+  | 'dice'
+  | 'trivia'
+  | 'wouldyourather'
+  | 'truthordare'
+  | 'numberguess'
+  | 'tapbattle'
 export type GameStatus = 'active' | 'finished'
 export type GameWinner = 'x' | 'o' | 'draw' | 'p1' | 'p2'
 

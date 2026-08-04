@@ -30,7 +30,7 @@ export function LandingPage() {
 
         <Link
           to="/login"
-          className="mt-8 inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 font-body text-sm font-semibold text-white shadow-glow transition hover:opacity-90"
+          className="mt-8 inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 font-body text-sm font-semibold text-onPrimary shadow-glow transition hover:opacity-90"
         >
           Masuk ke Ruang Kita
         </Link>

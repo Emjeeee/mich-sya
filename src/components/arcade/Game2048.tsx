@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useGameScores } from '@/hooks/useGameScores'
+import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 import {
   addRandomTile,
@@ -26,6 +27,7 @@ export function Game2048() {
   const [gameOver, setGameOver] = useState(false)
   const [recorded, setRecorded] = useState(false)
   const { recordScore } = useGameScores('2048')
+  const { user } = useAuth()
 
   function handleMove(dir: 'left' | 'right' | 'up' | 'down') {
     if (gameOver) return
@@ -58,7 +60,7 @@ export function Game2048() {
 
   useEffect(() => {
     if (gameOver && !recorded) {
-      recordScore.mutate({ score })
+      recordScore.mutate({ userId: user!.id, score })
       setRecorded(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -84,7 +86,7 @@ export function Game2048() {
             key={i}
             className={cn(
               'flex aspect-square items-center justify-center rounded-lg font-number text-lg font-bold',
-              value === 0 ? 'bg-bg' : TILE_COLORS[value] ?? 'bg-primary text-white',
+              value === 0 ? 'bg-card' : TILE_COLORS[value] ?? 'bg-primary text-onPrimary',
             )}
           >
             {value !== 0 && value}

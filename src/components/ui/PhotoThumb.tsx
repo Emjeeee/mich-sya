@@ -21,5 +21,5 @@ export function PhotoThumb({ path, className }: { path: string | null; className
     return <div className={cn('animate-pulse rounded-lg bg-secondary/20', className)} />
   }
 
-  return <img src={url} alt="" className={cn('rounded-lg object-cover', className)} />
+  return <img src={url} alt="" className={cn('animate-fadeIn rounded-lg object-cover', className)} />
 }

@@ -40,7 +40,7 @@ export function WouldYouRatherGame() {
                 onClick={() => setPicked((p) => ({ ...p, you: opt }))}
                 className={cn(
                   'rounded-full px-3 py-1 text-xs font-medium transition',
-                  picked.you === opt ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
+                  picked.you === opt ? 'bg-primary text-onPrimary' : 'bg-secondary/20 text-text',
                 )}
               >
                 Pilihanku

@@ -1,8 +1,11 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
 
+// bg-card, not bg-bg — --color-bg is deliberately transparent in Michael/
+// Tasya/Midnight Gold mode so their animated backgrounds show through page
+// surfaces, but an input field needs to stay opaque in every theme.
 const fieldClass =
-  'w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
+  'w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-text placeholder:text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary'
 
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (

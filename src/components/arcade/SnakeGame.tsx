@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useGameScores } from '@/hooks/useGameScores'
+import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 
 const SIZE = 12
@@ -34,6 +35,7 @@ export function SnakeGame() {
   const [recorded, setRecorded] = useState(false)
   const dirRef = useRef(dir)
   const { recordScore } = useGameScores('snake')
+  const { user } = useAuth()
 
   dirRef.current = dir
 
@@ -88,7 +90,7 @@ export function SnakeGame() {
 
   useEffect(() => {
     if (gameOver && !recorded) {
-      recordScore.mutate({ score: snake.length })
+      recordScore.mutate({ userId: user!.id, score: snake.length })
       setRecorded(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -126,7 +128,7 @@ export function SnakeGame() {
               key={i}
               className={cn(
                 'aspect-square rounded-sm',
-                isHead ? 'bg-primary' : isBody ? 'bg-primary/60' : isFood ? 'bg-accent' : 'bg-bg',
+                isHead ? 'bg-primary' : isBody ? 'bg-primary/60' : isFood ? 'bg-accent' : 'bg-card',
               )}
             />
           )

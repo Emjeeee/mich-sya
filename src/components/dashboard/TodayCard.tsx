@@ -20,7 +20,7 @@ export function TodayCard() {
     <Card className="flex h-full flex-col">
       <div className="flex gap-4">
         <div className="flex h-16 w-16 shrink-0 flex-col overflow-hidden rounded-xl border border-border">
-          <div className="bg-primary py-1 text-center text-[10px] font-semibold tracking-wide text-white">
+          <div className="bg-primary py-1 text-center text-[10px] font-semibold tracking-wide text-onPrimary">
             {weekdayShort}
           </div>
           <div className="flex flex-1 items-center justify-center font-number text-2xl font-bold text-text">

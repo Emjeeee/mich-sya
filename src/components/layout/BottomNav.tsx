@@ -37,7 +37,7 @@ export function BottomNav() {
             <span className="relative">
               <item.icon className="h-5 w-5" />
               {item.to === '/app/chat' && unreadMessages > 0 && (
-                <span className="absolute -right-1.5 -top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-primary px-1 text-[8px] font-bold leading-none text-white">
+                <span className="absolute -right-1.5 -top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-primary px-1 text-[8px] font-bold leading-none text-onPrimary">
                   {unreadMessages > 9 ? '9+' : unreadMessages}
                 </span>
               )}

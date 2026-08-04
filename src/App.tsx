@@ -3,6 +3,7 @@ import { ProtectedRoute } from '@/components/layout/ProtectedRoute'
 import { AppShell } from '@/components/layout/AppShell'
 import { MichaelDotsBackground } from '@/components/layout/MichaelDotsBackground'
 import { TasyaCloudsBackground } from '@/components/layout/TasyaCloudsBackground'
+import { MidnightGoldBackground } from '@/components/layout/MidnightGoldBackground'
 import { LandingPage } from '@/pages/LandingPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
@@ -26,6 +27,7 @@ export default function App() {
     <BrowserRouter>
       <MichaelDotsBackground />
       <TasyaCloudsBackground />
+      <MidnightGoldBackground />
       <div className="relative z-10">
         <Routes>
           <Route path="/" element={<LandingPage />} />

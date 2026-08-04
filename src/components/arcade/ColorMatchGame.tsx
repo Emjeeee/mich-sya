@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useGameScores } from '@/hooks/useGameScores'
+import { useAuth } from '@/contexts/AuthContext'
 import { shuffle } from '@/lib/utils'
 
 const COLORS = [
@@ -28,6 +29,7 @@ export function ColorMatchGame() {
   const [gameOver, setGameOver] = useState(false)
   const [recorded, setRecorded] = useState(false)
   const { recordScore } = useGameScores('colormatch')
+  const { user } = useAuth()
 
   useEffect(() => {
     if (!running) return
@@ -40,7 +42,7 @@ export function ColorMatchGame() {
 
   useEffect(() => {
     if (gameOver && !recorded) {
-      recordScore.mutate({ score })
+      recordScore.mutate({ userId: user!.id, score })
       setRecorded(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

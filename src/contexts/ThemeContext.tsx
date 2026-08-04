@@ -1,9 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 
-export type Theme = 'light' | 'dark' | 'michael' | 'tasya'
+export type Theme = 'light' | 'dark' | 'michael' | 'tasya' | 'midnightgold'
 
-const VALID_THEMES: Theme[] = ['light', 'dark', 'michael', 'tasya']
-const DARK_BACKGROUND_THEMES: Theme[] = ['dark', 'michael']
+const VALID_THEMES: Theme[] = ['light', 'dark', 'michael', 'tasya', 'midnightgold']
+const DARK_BACKGROUND_THEMES: Theme[] = ['dark', 'michael', 'midnightgold']
 
 interface ThemeContextValue {
   theme: Theme

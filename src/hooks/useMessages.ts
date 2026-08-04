@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useCouple } from '@/contexts/CoupleContext'
@@ -20,7 +20,14 @@ export function useMessages() {
   const queryClient = useQueryClient()
   const coupleId = couple?.id
   const userId = user?.id
-  const queryKey = ['messages', coupleId]
+  // Memoized so the Realtime subscription effect below (which lists queryKey
+  // as a dependency) doesn't tear down and recreate its channel on every
+  // render — a plain array literal here is a new reference every call, which
+  // meant typing in chat search or sending a message (both cause ChatPage to
+  // re-render) was constantly resubscribing the same `messages:${coupleId}`
+  // topic, the exact "two subscriptions on one topic" crash pattern already
+  // hit and fixed once before in useUnreadMessages.ts.
+  const queryKey = useMemo(() => ['messages', coupleId], [coupleId])
 
   const query = useQuery({
     queryKey,
@@ -119,7 +126,16 @@ export function useMessages() {
           )
         },
       )
-      .subscribe()
+      .subscribe((status) => {
+        // A silently dropped/failed channel used to mean messages just never
+        // showed up (no detection, no recovery) — this is the belt-and-braces
+        // half of that fix: force a refetch once the channel comes back so a
+        // temporary drop self-heals instead of staying stuck until an
+        // unrelated remount/focus event.
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          queryClient.invalidateQueries({ queryKey })
+        }
+      })
 
     return () => {
       supabase.removeChannel(channel)
@@ -135,23 +151,41 @@ export function useMessages() {
       mediaDurationMs?: number
       replyToId?: string
     }) => {
+      if (!coupleId || !user) throw new Error('Belum siap — coupleId/user belum tersedia')
       let media_path: string | null = null
       if (input.file && input.fileExt) {
         media_path = await uploadChatMedia(coupleId!, input.file, input.fileExt)
       }
-      const { error } = await supabase.from('messages').insert({
-        couple_id: coupleId!,
-        sender_id: user!.id,
-        type: input.type,
-        content: input.content ?? null,
-        media_path,
-        media_duration_ms: input.mediaDurationMs ?? null,
-        reply_to_id: input.replyToId ?? null,
-      })
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          couple_id: coupleId!,
+          sender_id: user!.id,
+          type: input.type,
+          content: input.content ?? null,
+          media_path,
+          media_duration_ms: input.mediaDurationMs ?? null,
+          reply_to_id: input.replyToId ?? null,
+        })
+        .select()
+        .single()
       if (error) throw error
+      return data as MessageRow
     },
-    // No cache patch here on purpose — the Realtime INSERT handler above
-    // appends it, identically for sender and recipient.
+    // Append on success directly, instead of relying solely on the Realtime
+    // INSERT echo — that echo used to be the ONLY way a just-sent message
+    // ever appeared, even in the sender's own view, so a slow/dropped
+    // channel made a successful send look like it silently failed (the
+    // reported "have to retype the same message several times" bug). This
+    // makes the sender's own view correct immediately regardless of Realtime
+    // timing; the echo still fires too but is deduped by id like normal.
+    onSuccess: (row) => {
+      queryClient.setQueryData<MessageRow[]>(queryKey, (curr) => {
+        if (!curr) return [row]
+        if (curr.some((m) => m.id === row.id)) return curr
+        return [...curr, row]
+      })
+    },
   })
 
   const markRead = useCallback(async () => {
@@ -166,6 +200,7 @@ export function useMessages() {
 
   const deleteMessage = useMutation({
     mutationFn: async (input: { message: MessageRow; scope: 'me' | 'everyone' }) => {
+      if (!user) throw new Error('Belum siap — user belum tersedia')
       if (input.scope === 'everyone') {
         const { error } = await supabase
           .from('messages')

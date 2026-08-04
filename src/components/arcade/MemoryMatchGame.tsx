@@ -83,7 +83,7 @@ export function MemoryMatchGame() {
               disabled={isFaceUp}
               className={cn(
                 'flex aspect-square items-center justify-center rounded-xl border border-border text-2xl transition',
-                isFaceUp ? 'bg-primary/10' : 'bg-bg hover:bg-secondary/15',
+                isFaceUp ? 'bg-primary/10' : 'bg-card hover:bg-secondary/15',
               )}
             >
               {isFaceUp ? card.symbol : ''}

@@ -4,12 +4,15 @@ import { useCouple } from '@/contexts/CoupleContext'
 import { useAuth } from '@/contexts/AuthContext'
 import type { MemoryRow } from '@/types'
 
-export interface MemoryInput {
+export interface MemoriesInput {
   title: string
   description?: string
   location?: string
   memory_date: string
-  photo_url?: string
+  // One memory row is created per photo, all sharing the same title/description/
+  // location/date entered once in the form — mirrors useGallery.ts's addPhotos
+  // batch-insert pattern. An empty array still creates a single photo-less row.
+  photoUrls: string[]
 }
 
 export function useMemories() {
@@ -36,17 +39,19 @@ export function useMemories() {
     queryClient.invalidateQueries({ queryKey: ['memories', coupleId] })
   }
 
-  const addMemory = useMutation({
-    mutationFn: async (input: MemoryInput) => {
-      const { error } = await supabase.from('memories').insert({
+  const addMemories = useMutation({
+    mutationFn: async (input: MemoriesInput) => {
+      const photoUrls = input.photoUrls.length > 0 ? input.photoUrls : [null]
+      const rows = photoUrls.map((photo_url) => ({
         couple_id: coupleId!,
         created_by: user!.id,
         title: input.title,
         description: input.description || null,
         location: input.location || null,
         memory_date: input.memory_date,
-        photo_url: input.photo_url || null,
-      })
+        photo_url,
+      }))
+      const { error } = await supabase.from('memories').insert(rows)
       if (error) throw error
     },
     onSuccess: invalidate,
@@ -60,5 +65,5 @@ export function useMemories() {
     onSuccess: invalidate,
   })
 
-  return { ...query, addMemory, removeMemory }
+  return { ...query, addMemories, removeMemory }
 }

@@ -18,10 +18,12 @@
   /* Received chat bubble — always opaque (unlike bg-secondary/20) and
      deliberately a neutral, low-saturation gray rather than a theme-tinted
      pastel, so it can't end up close in hue to one of the (colorful) chat
-     wallpaper presets. Paired with a visible border in MessageBubble for a
-     hard edge that reads regardless of what's behind it. */
+     wallpaper presets. Kept visibly lighter/darker than --color-card (not
+     just a shade or two off) so the bubble reads as its own surface even
+     without a border — see MessageBubble.tsx's shadow-sm. */
   --color-bubble: #e9e6e4;
   --color-bubble-text: #2b2b2b;
+  --color-on-primary: #ffffff;
 
   /* RGB-triplet twins of the hex vars above, used only by tailwind.config.ts
      so utilities like bg-secondary/20 can apply opacity via rgb(var(...) /
@@ -49,8 +51,9 @@
   --color-border: rgba(255, 255, 255, 0.08);
   --color-muted: #a89fae;
 
-  --color-bubble: #2b2b30;
+  --color-bubble: #34323d;
   --color-bubble-text: #f5f0f6;
+  --color-on-primary: #ffffff;
 
   --color-primary-rgb: 255 94 138;
   --color-secondary-rgb: 255 182 193;
@@ -80,8 +83,9 @@
   --color-border: rgba(248, 250, 252, 0.08);
   --color-muted: rgba(248, 250, 252, 0.6);
 
-  --color-bubble: #202023;
+  --color-bubble: #29272f;
   --color-bubble-text: #f8fafc;
+  --color-on-primary: #ffffff;
 
   --color-primary-rgb: 139 92 246;
   --color-secondary-rgb: 236 72 153;
@@ -113,6 +117,7 @@
 
   --color-bubble: #efe8e2;
   --color-bubble-text: #5a4a42;
+  --color-on-primary: #ffffff;
 
   --color-primary-rgb: 232 160 180;
   --color-secondary-rgb: 242 201 214;
@@ -124,6 +129,41 @@
   --shadow-card: 0 10px 30px rgba(232, 160, 180, 0.22);
   --card-duration: 350ms;
   --card-ease: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ============================================================
+   Midnight Gold — black-and-gold luxury: starfield, an occasional
+   comet streak, and drifting monochrome clouds behind them.
+   ============================================================ */
+[data-theme='midnightgold'] {
+  /* transparent so the starfield/comet/cloud canvas (fixed behind everything)
+     shows through page-level surfaces — body below has its own solid fill. */
+  --color-bg: transparent;
+  --color-text: #f5efe0;
+  --color-primary: #d4af37;
+  --color-secondary: #f0d78c;
+  --color-accent: #e8c468;
+  --color-card: #16130f;
+  --color-border: rgba(212, 175, 55, 0.25);
+  --color-muted: rgba(245, 239, 224, 0.55);
+
+  --color-bubble: #2b2418;
+  --color-bubble-text: #f5efe0;
+  /* White-on-gold is only ~2.1:1 contrast (fails WCAG AA) — every other
+     theme's primary is dark/saturated enough for white text to work, but
+     this gold is too light. Near-black instead. */
+  --color-on-primary: #1a1408;
+
+  --color-primary-rgb: 212 175 55;
+  --color-secondary-rgb: 240 215 140;
+  --color-accent-rgb: 232 196 104;
+  --color-card-rgb: 22 19 15;
+
+  --font-heading: 'Cinzel', serif;
+  --radius-card: 0.875rem;
+  --shadow-card: 0 0 0 1px rgba(212, 175, 55, 0.15), 0 0 28px rgba(212, 175, 55, 0.08);
+  --card-duration: 250ms;
+  --card-ease: ease;
 }
 
 * {
@@ -155,6 +195,12 @@ body {
 /* Soft sky backdrop for Tasya Mode's cloud canvas — see --color-bg above. */
 [data-theme='tasya'] body {
   background: linear-gradient(180deg, #fdeef3 0%, #faf3ee 55%, #f7ece1 100%);
+}
+
+/* Solid near-black backdrop for Midnight Gold's starfield canvas — see
+   --color-bg above. */
+[data-theme='midnightgold'] body {
+  background: linear-gradient(180deg, #0b0a08 0%, #14110c 100%);
 }
 
 /* Shared card shell: every theme gets its own shape/shadow/motion
@@ -224,6 +270,15 @@ body {
   transform: translateY(-3px) scale(1.01);
 }
 
+[data-theme='midnightgold'] .card {
+  border-color: rgba(212, 175, 55, 0.18);
+}
+[data-theme='midnightgold'] .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.35), 0 0 28px rgba(212, 175, 55, 0.15);
+  border-color: rgba(212, 175, 55, 0.4);
+}
+
 .leaflet-container {
   background-color: var(--color-card) !important;
   border-radius: 1.25rem;
@@ -276,6 +331,85 @@ body {
   100% { transform: translateX(120vw) translateY(0); }
 }
 
+/* ============================================================
+   Midnight Gold's background: twinkling stars, an occasional comet
+   streak, and a couple of drifting monochrome clouds — all pure CSS
+   keyframes, no per-frame JS (see MidnightGoldBackground.tsx).
+   ============================================================ */
+.midnight-ribbon {
+  stroke-dasharray: 60 260;
+  animation: midnight-ribbon-flow 10s linear infinite;
+}
+
+@keyframes midnight-ribbon-flow {
+  to { stroke-dashoffset: -1280; }
+}
+
+.midnight-star {
+  border-radius: 50%;
+  background: #f5efe0;
+  box-shadow: 0 0 4px rgba(245, 239, 224, 0.6);
+  animation-name: midnight-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+@keyframes midnight-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.midnight-comet {
+  width: 140px;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, #f0d78c 60%, #fff8e6 100%);
+  filter: drop-shadow(0 0 6px rgba(240, 215, 140, 0.8));
+  animation-name: midnight-comet;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+}
+
+@keyframes midnight-comet {
+  0% { transform: translate(0, 0) rotate(-30deg); opacity: 0; }
+  2% { opacity: 1; }
+  16% { transform: translate(115vw, 65vh) rotate(-30deg); opacity: 0; }
+  100% { transform: translate(115vw, 65vh) rotate(-30deg); opacity: 0; }
+}
+
+.midnight-cloud {
+  border-radius: 50%;
+  filter: blur(2px);
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(245, 239, 224, 0.22),
+    rgba(180, 175, 165, 0.1) 55%,
+    transparent 100%
+  );
+  animation-name: cloud-drift;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+.midnight-cloud::before,
+.midnight-cloud::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  background: inherit;
+}
+.midnight-cloud::before {
+  width: 62%;
+  height: 62%;
+  top: -34%;
+  left: 12%;
+}
+.midnight-cloud::after {
+  width: 46%;
+  height: 46%;
+  top: -20%;
+  right: 8%;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tasya-cloud {
     animation: none;
@@ -283,5 +417,14 @@ body {
   }
   [data-theme='michael'] .card::before {
     animation: none;
+  }
+  .midnight-star,
+  .midnight-comet,
+  .midnight-cloud,
+  .midnight-ribbon {
+    animation: none;
+  }
+  .midnight-comet {
+    opacity: 0;
   }
 }

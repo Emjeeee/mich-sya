@@ -21,6 +21,10 @@ export default {
         // bubble must stay solid regardless of any chat wallpaper behind it.
         bubble: 'var(--color-bubble)',
         bubbleText: 'var(--color-bubble-text)',
+        // Text color for content sitting on a solid --color-primary fill —
+        // white in every theme except Midnight Gold, whose gold primary is
+        // too light for white text to meet contrast (see index.css).
+        onPrimary: 'var(--color-on-primary)',
       },
       fontFamily: {
         // Each theme overrides --font-heading (see index.css); Poppins is the fallback.

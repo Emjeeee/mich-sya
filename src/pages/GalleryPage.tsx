@@ -83,7 +83,11 @@ export function GalleryPage() {
         {photos?.map((photo) => (
           <div key={photo.id} className="group relative aspect-square overflow-hidden rounded-xl bg-secondary/10">
             {urls?.[photo.photo_path] ? (
-              <img src={urls[photo.photo_path]} alt="" className="h-full w-full object-cover" />
+              <img
+                src={urls[photo.photo_path]}
+                alt=""
+                className="h-full w-full animate-fadeIn object-cover"
+              />
             ) : (
               <div className="h-full w-full animate-pulse" />
             )}

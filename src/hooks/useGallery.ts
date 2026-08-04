@@ -60,6 +60,7 @@ export function useGalleryUrls(paths: string[]) {
     queryKey: ['gallery-urls', paths],
     enabled: paths.length > 0,
     staleTime: 30 * 60_000,
+    gcTime: 60 * 60_000, // same reasoning as useSignedUrl — avoid evicting still-valid signed URLs
     queryFn: () => getSignedPhotoUrls(paths),
   })
 }

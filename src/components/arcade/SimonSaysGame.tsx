@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useGameScores } from '@/hooks/useGameScores'
+import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 
 const COLORS = [
@@ -21,6 +22,7 @@ export function SimonSaysGame() {
   const [recorded, setRecorded] = useState(false)
   const timeouts = useRef<ReturnType<typeof setTimeout>[]>([])
   const { recordScore } = useGameScores('simon')
+  const { user } = useAuth()
 
   function clearTimers() {
     timeouts.current.forEach(clearTimeout)
@@ -74,7 +76,7 @@ export function SimonSaysGame() {
 
   useEffect(() => {
     if (phase === 'gameOver' && !recorded) {
-      recordScore.mutate({ score: sequence.length - 1 })
+      recordScore.mutate({ userId: user!.id, score: sequence.length - 1 })
       setRecorded(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useGameScores } from '@/hooks/useGameScores'
+import { useAuth } from '@/contexts/AuthContext'
 import { cn } from '@/lib/utils'
 
 const SIZE = 4
@@ -36,6 +37,7 @@ export function SlidingPuzzleGame() {
   const [moves, setMoves] = useState(0)
   const [recorded, setRecorded] = useState(false)
   const { recordScore } = useGameScores('slidingpuzzle')
+  const { user } = useAuth()
 
   const won = board.every((v, i) => v === SOLVED[i])
 
@@ -48,7 +50,7 @@ export function SlidingPuzzleGame() {
     setBoard(next)
     setMoves((m) => m + 1)
     if (next.every((v, i) => v === SOLVED[i]) && !recorded) {
-      recordScore.mutate({ score: moves + 1 })
+      recordScore.mutate({ userId: user!.id, score: moves + 1 })
       setRecorded(true)
     }
   }

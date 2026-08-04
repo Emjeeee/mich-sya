@@ -84,7 +84,7 @@ export function SchedulePage() {
             onClick={() => setViewMode('calendar')}
             className={cn(
               'flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition',
-              viewMode === 'calendar' ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
+              viewMode === 'calendar' ? 'bg-primary text-onPrimary' : 'bg-secondary/20 text-text',
             )}
           >
             <CalendarIcon className="h-3.5 w-3.5" />
@@ -94,7 +94,7 @@ export function SchedulePage() {
             onClick={() => setViewMode('list')}
             className={cn(
               'flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition',
-              viewMode === 'list' ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
+              viewMode === 'list' ? 'bg-primary text-onPrimary' : 'bg-secondary/20 text-text',
             )}
           >
             <ListIcon className="h-3.5 w-3.5" />
@@ -110,7 +110,7 @@ export function SchedulePage() {
                 onClick={() => setTab(t)}
                 className={cn(
                   'rounded-full px-4 py-1.5 text-sm font-medium transition',
-                  tab === t ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
+                  tab === t ? 'bg-primary text-onPrimary' : 'bg-secondary/20 text-text',
                 )}
               >
                 {t === 'upcoming' ? 'Akan Datang' : 'Sudah Lewat'}
@@ -168,7 +168,7 @@ export function SchedulePage() {
                           onChange={(e) =>
                             updateStatus.mutate({ id: s.id, status: e.target.value as ScheduleStatus })
                           }
-                          className="rounded-lg border border-border bg-bg px-2 py-1 text-xs text-text"
+                          className="rounded-lg border border-border bg-card px-2 py-1 text-xs text-text"
                         >
                           <option value="planned">Direncanakan</option>
                           <option value="confirmed">Terkonfirmasi</option>
@@ -254,7 +254,7 @@ export function SchedulePage() {
                   updateStatus.mutate({ id: selectedItem.id, status })
                   setSelectedItem({ ...selectedItem, status })
                 }}
-                className="w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-text"
               >
                 <option value="planned">Direncanakan</option>
                 <option value="confirmed">Terkonfirmasi</option>

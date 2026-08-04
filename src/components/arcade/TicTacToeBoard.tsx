@@ -23,7 +23,7 @@ export function TicTacToeBoard({
           disabled={disabled || cell !== ''}
           onClick={() => onCellClick?.(i)}
           className={cn(
-            'flex aspect-square items-center justify-center rounded-2xl border border-border bg-bg font-number text-4xl font-bold transition',
+            'flex aspect-square items-center justify-center rounded-2xl border border-border bg-card font-number text-4xl font-bold transition',
             cell === '' && !disabled && 'hover:bg-secondary/15',
             cell !== '' && MARK_STYLE[cell],
           )}

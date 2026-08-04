@@ -40,6 +40,9 @@ Buka **SQL Editor** di dashboard Supabase, lalu jalankan berurutan:
    kolom `hidden_for` di `messages` (dukung "Hapus untuk Saya", terpisah dari `deleted_at` yang
    sudah ada untuk "Hapus untuk Semua"), dan tabel `chat_background` (background chat, satu per
    couple, dipakai bersama).
+10. [`supabase/migrations/0010_arcade_v3.sql`](supabase/migrations/0010_arcade_v3.sql) — menambah
+    4 game ke daftar `game_type` yang boleh online: Would You Rather, Truth or Dare, Tebak Angka,
+    Adu Ketuk.
 
 ### 3. Install & konfigurasi
 ```bash
@@ -89,15 +92,21 @@ disimpan di Supabase (Postgres), bukan hanya di browser.
 | Couple Goals | `/app/goals` |
 | Peta Perjalanan | `/app/journey` |
 | Ide Date Random | `/app/date-ideas` |
-| Arcade Room (20 mini game, lokal & online, papan skor) | `/app/arcade` |
+| Arcade Room (21 mini game, 10 lokal+online, 11 lokal saja, papan skor) | `/app/arcade` |
 | Pengaturan (nama, tanggal jadian, foto sampul, tema) | `/app/settings` |
 
 ## Catatan teknis
 
-- **Tema**: 4 pilihan (Terang, Gelap, Michael Mode, Tasya Mode), tersimpan di `localStorage`,
-  dipilih lewat `ThemeSwitcher` (menu akun sidebar, Pengaturan, atau sheet "Lainnya" di mobile).
-  Diterapkan lewat atribut `data-theme` di `<html>` + CSS variable per tema — lihat `src/index.css`.
-  Michael Mode pakai palet hitam/violet/magenta; Tasya Mode pakai palet snow/dusty rose/champagne.
+- **Tema**: 5 pilihan (Terang, Gelap, Michael Mode, Tasya Mode, Midnight Gold), tersimpan di
+  `localStorage`, dipilih lewat `ThemeSwitcher` (menu akun sidebar, Pengaturan, atau sheet
+  "Lainnya" di mobile) — validasi tema yang sama juga ada di script inline `index.html` (dijalankan
+  sebelum React mount, biar tidak ada flash tema salah), jadi tema baru harus ditambahkan di
+  **kedua** tempat itu. Diterapkan lewat atribut `data-theme` di `<html>` + CSS variable per tema —
+  lihat `src/index.css`. Michael Mode pakai palet hitam/violet/magenta; Tasya Mode pakai palet
+  snow/dusty rose/champagne; Midnight Gold pakai palet hitam/emas dengan font heading `Cinzel`
+  (satu-satunya tema yang pakai font di luar Poppins/Space Grotesk/Quicksand yang sudah ada) dan
+  background starfield + comet + awan monokrom (`MidnightGoldBackground.tsx`, CSS keyframe murni
+  seperti Tasya Mode, bukan canvas + `requestAnimationFrame` terus-menerus seperti Michael Mode).
 - **Ikon**: seluruh ikon navigasi, kartu dashboard, dan game pakai set ikon pixel/8-bit buatan
   sendiri (`src/components/ui/pixel-icons.tsx`, bitmap 8×8 di-render sebagai `<rect>` SVG) — bukan
   emoji atau library eksternal. Ikon konseptual (nav, dashboard, arcade) punya warna tetap sesuai
@@ -109,15 +118,30 @@ disimpan di Supabase (Postgres), bukan hanya di browser.
 - **Foto sampul landing page**: diunggah langsung dari dalam aplikasi (Pengaturan → Foto Sampul),
   disimpan di bucket publik `public-covers`, jadi Ruth atau Michael bisa menggantinya kapan saja
   tanpa perlu ubah kode.
-- **Arcade Room**: 20 mini game lewat satu registry (`src/lib/games/registry.ts`) + route dinamis
-  `/app/arcade/:gameKey`. 6 game (Tic-Tac-Toe, Connect Four, Batu Gunting Kertas, Tebak Kata, Adu
-  Dadu, Duel Trivia) punya dua mode — "Satu HP" (pass-and-play lokal, tanpa backend) dan "Online"
-  (device terpisah, disinkronkan lewat tabel `game_sessions` dengan polling ~2.5 detik, bukan
-  Supabase Realtime, konsisten dengan model sync aplikasi ini). 14 game lainnya murni lokal
-  (solo atau co-op satu layar). Skor/kemenangan dari mode online tercatat di `game_scores` dan
-  ditampilkan sebagai papan skor per game (`Leaderboard.tsx`).
+- **Arcade Room**: 21 mini game lewat satu registry (`src/lib/games/registry.ts`) + route dinamis
+  `/app/arcade/:gameKey`. 10 game (Tic-Tac-Toe, Connect Four, Batu Gunting Kertas, Tebak Kata, Adu
+  Dadu, Duel Trivia, Tebak Angka, Truth or Dare, Would You Rather, Adu Ketuk) punya dua mode —
+  "Satu HP" (pass-and-play lokal, tanpa backend) dan "Online" (device terpisah, disinkronkan lewat
+  tabel `game_sessions` dengan polling ~2.5 detik, bukan Supabase Realtime, konsisten dengan model
+  sync aplikasi ini). 11 game lainnya murni lokal (solo atau co-op satu layar), termasuk **Block
+  Blast** (`src/lib/games/blockblast.ts`) — grid 8×8, 3 potongan acak tanpa rotasi sekali tarik,
+  hapus baris/kolom penuh buat skor, mirip 1010!/Woodoku. Skor/kemenangan
+  dari mode online tercatat di `game_scores` dan ditampilkan sebagai papan skor per game
+  (`Leaderboard.tsx`) — tiap game lokal yang punya skor juga wajib kirim `userId` (dari
+  `useAuth()`) saat merekam skor, bukan cuma `score`, atau leaderboard akan salah atribusi ke
+  pasangan (bug nyata yang pernah kejadian, sudah diperbaiki di semua game).
+  **Info tersembunyi di game online** (siapa pilih apa, kata/angka rahasia) bukan proteksi level
+  data — RLS tetap kasih akses select penuh ke kedua pasangan atas alasan performa/kesederhanaan,
+  jadi field lawan sebenarnya sudah ada di response JSON. "Menyembunyikan" artinya cuma tidak
+  merender field itu di JSX sampai kondisi reveal terpenuhi (lihat `RockPaperScissorsOnline.tsx`
+  untuk reveal-setelah-keduanya-pilih, atau `HangmanOnline.tsx`/`NumberGuessOnline.tsx` untuk
+  peran setter/guesser yang asimetris) — cukup untuk pasangan yang saling percaya, bukan didesain
+  tahan terhadap orang yang buka devtools.
 - **Galeri**: upload banyak foto sekaligus (multi-select) di `/app/gallery`, disimpan di bucket
   privat `couple-photos`. Kartu Galeri di beranda otomatis loop lewat semua foto tiap 3,5 detik.
+  **Kenangan** (`/app/memories`) dan **Chat** juga sudah bisa pilih banyak foto sekaligus — di
+  Kenangan tiap foto jadi satu entri kenangan terpisah (judul/cerita yang sama), di Chat tiap foto
+  jadi satu pesan terpisah.
 - **Peta Perjalanan**: cari tempat lewat nama (Nominatim/OpenStreetMap, gratis tanpa API key) atau
   klik langsung di peta. Titik-titik diurutkan berdasarkan tanggal kunjungan lalu dihubungkan garis
   rute jalan sungguhan lewat OSRM (juga gratis, tanpa API key) — server demo publik OSRM, jadi

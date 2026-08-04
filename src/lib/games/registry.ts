@@ -12,6 +12,7 @@ import { SimonSaysGame } from '@/components/arcade/SimonSaysGame'
 import { WhackAMoleGame } from '@/components/arcade/WhackAMoleGame'
 import { ReactionDuelGame } from '@/components/arcade/ReactionDuelGame'
 import { NumberGuessGame } from '@/components/arcade/NumberGuessGame'
+import { NumberGuessOnline } from '@/components/arcade/NumberGuessOnline'
 import { WordScrambleGame } from '@/components/arcade/WordScrambleGame'
 import { EmojiQuizGame } from '@/components/arcade/EmojiQuizGame'
 import { SlidingPuzzleGame } from '@/components/arcade/SlidingPuzzleGame'
@@ -22,9 +23,13 @@ import { DiceBattleOnline } from '@/components/arcade/DiceBattleOnline'
 import { TriviaDuelLocal } from '@/components/arcade/TriviaDuelLocal'
 import { TriviaDuelOnline } from '@/components/arcade/TriviaDuelOnline'
 import { TruthOrDareGame } from '@/components/arcade/TruthOrDareGame'
+import { TruthOrDareOnline } from '@/components/arcade/TruthOrDareOnline'
 import { WouldYouRatherGame } from '@/components/arcade/WouldYouRatherGame'
+import { WouldYouRatherOnline } from '@/components/arcade/WouldYouRatherOnline'
 import { TapBattleGame } from '@/components/arcade/TapBattleGame'
+import { TapBattleOnline } from '@/components/arcade/TapBattleOnline'
 import { ColorMatchGame } from '@/components/arcade/ColorMatchGame'
+import { BlockBlastGame } from '@/components/arcade/BlockBlastGame'
 
 export const GAMES: GameDef[] = [
   {
@@ -155,11 +160,12 @@ export const GAMES: GameDef[] = [
     title: 'Tebak Angka',
     description: 'Tebak angka 1-100 sesedikit mungkin coba.',
     icon: 'question',
-    hasOnline: false,
+    hasOnline: true,
     scoreMode: 'score',
     scoreSort: 'asc',
     scoreUnit: ' tebakan',
     LocalComponent: NumberGuessGame,
+    OnlineComponent: NumberGuessOnline,
   },
   {
     key: 'wordscramble',
@@ -199,27 +205,30 @@ export const GAMES: GameDef[] = [
     title: 'Truth or Dare',
     description: 'Pilih Truth atau Dare, gantian sama pasanganmu.',
     icon: 'spinner',
-    hasOnline: false,
+    hasOnline: true,
     scoreMode: 'none',
     LocalComponent: TruthOrDareGame,
+    OnlineComponent: TruthOrDareOnline,
   },
   {
     key: 'wouldyourather',
     title: 'Would You Rather',
     description: 'Pilih diam-diam, buka bareng — sama atau beda pilihan?',
     icon: 'fork',
-    hasOnline: false,
+    hasOnline: true,
     scoreMode: 'none',
     LocalComponent: WouldYouRatherGame,
+    OnlineComponent: WouldYouRatherOnline,
   },
   {
     key: 'tapbattle',
     title: 'Adu Ketuk',
     description: 'Siapa paling banyak ketuk layar dalam 10 detik?',
     icon: 'tap',
-    hasOnline: false,
-    scoreMode: 'none',
+    hasOnline: true,
+    scoreMode: 'wins',
     LocalComponent: TapBattleGame,
+    OnlineComponent: TapBattleOnline,
   },
   {
     key: 'colormatch',
@@ -231,5 +240,16 @@ export const GAMES: GameDef[] = [
     scoreSort: 'desc',
     scoreUnit: ' poin',
     LocalComponent: ColorMatchGame,
+  },
+  {
+    key: 'blockblast',
+    title: 'Block Blast',
+    description: 'Susun potongan di kotak 8x8, penuhi baris/kolom buat hapus dan dapat skor.',
+    icon: 'grid3',
+    hasOnline: false,
+    scoreMode: 'score',
+    scoreSort: 'desc',
+    scoreUnit: ' poin',
+    LocalComponent: BlockBlastGame,
   },
 ]

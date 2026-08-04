@@ -21,7 +21,7 @@ export function ChatComposer({
   onSend,
   onTyping,
 }: {
-  onSend: (input: ComposerSendInput) => void
+  onSend: (input: ComposerSendInput) => Promise<unknown>
   onTyping: () => void
 }) {
   const [text, setText] = useState('')
@@ -42,25 +42,43 @@ export function ChatComposer({
     return () => document.removeEventListener('mousedown', onPointerDown)
   }, [showEmoji, showGif])
 
-  function handleSendText() {
-    if (!text.trim()) return
-    onSend({ type: 'text', content: text.trim() })
+  async function handleSendText() {
+    const value = text.trim()
+    if (!value) return
     setText('')
+    try {
+      await onSend({ type: 'text', content: value })
+    } catch {
+      // Restore what was typed instead of silently losing it — a failed
+      // send used to clear the box unconditionally, so a genuine network/RLS
+      // error looked identical to a successful send until the bubble never
+      // showed up, and there was nothing left to resend but memory.
+      setText(value)
+    }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const isVideo = file.type.startsWith('video/')
-    const limit = isVideo ? CHAT_MEDIA_LIMITS.video : CHAT_MEDIA_LIMITS.image
-    if (file.size > limit) {
-      alert(`File terlalu besar (maks ${Math.round(limit / 1024 / 1024)}MB)`)
-      e.target.value = ''
-      return
-    }
-    const ext = file.name.split('.').pop() ?? (isVideo ? 'mp4' : 'jpg')
-    onSend({ type: isVideo ? 'video' : 'image', file, fileExt: ext })
+    const files = Array.from(e.target.files ?? [])
     e.target.value = ''
+    if (files.length === 0) return
+
+    // Multiple files become multiple separate messages, one per file — chat
+    // doesn't have a "one message, many photos" shape the way Gallery/Memories
+    // do, so this is a loop over the existing single-send path rather than a
+    // batch insert.
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/')
+      const limit = isVideo ? CHAT_MEDIA_LIMITS.video : CHAT_MEDIA_LIMITS.image
+      if (file.size > limit) {
+        alert(`${file.name}: file terlalu besar (maks ${Math.round(limit / 1024 / 1024)}MB)`)
+        continue
+      }
+      const ext = file.name.split('.').pop() ?? (isVideo ? 'mp4' : 'jpg')
+      // No text to restore on failure here (unlike handleSendText) — the
+      // global error banner in ChatPage already surfaces send failures via
+      // sendMessage.isError; this just avoids an unhandled-rejection warning.
+      onSend({ type: isVideo ? 'video' : 'image', file, fileExt: ext }).catch(() => {})
+    }
   }
 
   function handleAudioRecorded(blob: Blob, durationMs: number) {
@@ -68,11 +86,11 @@ export function ChatComposer({
       alert('Rekaman terlalu panjang/besar.')
       return
     }
-    onSend({ type: 'audio', file: blob, fileExt: 'webm', mediaDurationMs: durationMs })
+    onSend({ type: 'audio', file: blob, fileExt: 'webm', mediaDurationMs: durationMs }).catch(() => {})
   }
 
   function handleGifPick(gif: GifResult) {
-    onSend({ type: 'gif', content: gif.url })
+    onSend({ type: 'gif', content: gif.url }).catch(() => {})
     setShowGif(false)
   }
 
@@ -117,6 +135,7 @@ export function ChatComposer({
           ref={fileInputRef}
           type="file"
           accept="image/*,video/*"
+          multiple
           onChange={handleFileChange}
           className="hidden"
         />

@@ -25,7 +25,7 @@ export function DaysTogetherCard({ anniversaryDate }: { anniversaryDate: string 
               { label: 'Menit', value: duration.minutes },
               { label: 'Detik', value: duration.seconds },
             ].map((unit) => (
-              <div key={unit.label} className="rounded-xl bg-bg py-2.5 text-center">
+              <div key={unit.label} className="rounded-xl bg-card py-2.5 text-center">
                 <p className="font-number text-2xl font-bold tabular-nums text-text">
                   {pad2(unit.value)}
                 </p>

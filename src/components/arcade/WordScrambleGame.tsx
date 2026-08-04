@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useGameScores } from '@/hooks/useGameScores'
+import { useAuth } from '@/contexts/AuthContext'
 import { WORD_BANK } from '@/lib/games/wordBanks'
 import { shuffle } from '@/lib/utils'
 
@@ -31,6 +32,7 @@ export function WordScrambleGame() {
   const [feedback, setFeedback] = useState<'correct' | 'wrong' | null>(null)
   const [recorded, setRecorded] = useState(false)
   const { recordScore } = useGameScores('wordscramble')
+  const { user } = useAuth()
 
   useEffect(() => {
     if (!running || timeLeft <= 0) return
@@ -42,7 +44,7 @@ export function WordScrambleGame() {
     if (running && timeLeft === 0) {
       setRunning(false)
       if (!recorded) {
-        recordScore.mutate({ score: solved })
+        recordScore.mutate({ userId: user!.id, score: solved })
         setRecorded(true)
       }
     }

@@ -33,7 +33,7 @@ export function GameShell({ game }: { game: GameDef }) {
               onClick={() => setMode(m)}
               className={cn(
                 'rounded-full px-4 py-1.5 text-sm font-medium transition',
-                mode === m ? 'bg-primary text-white' : 'bg-secondary/20 text-text',
+                mode === m ? 'bg-primary text-onPrimary' : 'bg-secondary/20 text-text',
               )}
             >
               {m === 'local' ? '📱 Satu HP' : '🌐 Online'}
@@ -44,7 +44,13 @@ export function GameShell({ game }: { game: GameDef }) {
 
       {mode === 'online' && OnlineComponent ? <OnlineComponent /> : <game.LocalComponent />}
 
-      {game.scoreMode !== 'none' && (!showOnline || mode === 'online') && (
+      {/* 'score' games record from local play too (see e.g. NumberGuessGame,
+          BlockBlastGame), so their leaderboard is always relevant. 'wins'
+          games' LocalComponents never record a score — pass-and-play wins
+          were never tracked — so showing the board there would just be an
+          empty "belum ada skor" that looks broken; keep it suppressed until
+          online mode, same as before hasOnline existed for these games. */}
+      {(game.scoreMode === 'score' || (game.scoreMode === 'wins' && (!showOnline || mode === 'online'))) && (
         <Card>
           <CardHeader title="Papan Skor" />
           <Leaderboard

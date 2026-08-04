@@ -58,7 +58,7 @@ export function Sidebar() {
             <span className="relative shrink-0">
               <item.icon className="h-5 w-5" />
               {collapsed && item.to === '/app/chat' && unreadMessages > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-white">
+                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-onPrimary">
                   {unreadMessages > 9 ? '9+' : unreadMessages}
                 </span>
               )}
@@ -67,7 +67,7 @@ export function Sidebar() {
               <span className="flex flex-1 items-center justify-between">
                 {item.label}
                 {item.to === '/app/chat' && unreadMessages > 0 && (
-                  <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                  <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-onPrimary">
                     {unreadMessages > 9 ? '9+' : unreadMessages}
                   </span>
                 )}

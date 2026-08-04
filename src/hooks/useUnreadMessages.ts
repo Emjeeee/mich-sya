@@ -43,7 +43,11 @@ export function useUnreadMessages() {
         { event: '*', schema: 'public', table: 'messages', filter: `couple_id=eq.${coupleId}` },
         () => queryClient.invalidateQueries({ queryKey: ['unread-messages', coupleId] }),
       )
-      .subscribe()
+      .subscribe((status) => {
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+          queryClient.invalidateQueries({ queryKey: ['unread-messages', coupleId] })
+        }
+      })
 
     return () => {
       supabase.removeChannel(channel)

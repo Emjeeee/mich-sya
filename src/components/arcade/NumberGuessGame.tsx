@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { useGameScores } from '@/hooks/useGameScores'
+import { useAuth } from '@/contexts/AuthContext'
 
 function randomSecret() {
   return Math.floor(Math.random() * 100) + 1
@@ -14,6 +15,7 @@ export function NumberGuessGame() {
   const [history, setHistory] = useState<{ value: number; hint: string }[]>([])
   const [won, setWon] = useState(false)
   const { recordScore } = useGameScores('numberguess')
+  const { user } = useAuth()
 
   function handleGuess(e: FormEvent) {
     e.preventDefault()
@@ -27,7 +29,7 @@ export function NumberGuessGame() {
     setGuess('')
     if (value === secret) {
       setWon(true)
-      recordScore.mutate({ score: nextHistory.length })
+      recordScore.mutate({ userId: user!.id, score: nextHistory.length })
     }
   }
 
