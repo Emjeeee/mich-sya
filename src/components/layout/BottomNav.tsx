@@ -7,11 +7,13 @@ import { ThemeSwitcher } from './ThemeSwitcher'
 import { LogoutIcon } from '@/components/ui/icons'
 import { DotsIcon } from '@/components/ui/pixel-icons'
 import { useAuth } from '@/contexts/AuthContext'
+import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 
 export function BottomNav() {
   const [moreOpen, setMoreOpen] = useState(false)
   const location = useLocation()
   const { signOut } = useAuth()
+  const unreadMessages = useUnreadMessages()
 
   const primary = NAV_ITEMS.slice(0, MOBILE_PRIMARY_COUNT)
   const rest = NAV_ITEMS.slice(MOBILE_PRIMARY_COUNT)
@@ -32,7 +34,14 @@ export function BottomNav() {
               )
             }
           >
-            <item.icon className="h-5 w-5" />
+            <span className="relative">
+              <item.icon className="h-5 w-5" />
+              {item.to === '/app/chat' && unreadMessages > 0 && (
+                <span className="absolute -right-1.5 -top-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-primary px-1 text-[8px] font-bold leading-none text-white">
+                  {unreadMessages > 9 ? '9+' : unreadMessages}
+                </span>
+              )}
+            </span>
             {item.label}
           </NavLink>
         ))}

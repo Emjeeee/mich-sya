@@ -8,6 +8,7 @@ import { ArcadeCard } from '@/components/dashboard/ArcadeCard'
 import { DateIdeasCard } from '@/components/dashboard/DateIdeasCard'
 import { GalleryCard } from '@/components/dashboard/GalleryCard'
 import { TodayCard } from '@/components/dashboard/TodayCard'
+import { DateSessionCard } from '@/components/dashboard/DateSessionCard'
 import { NAV_ITEMS } from '@/lib/navItems'
 import { NavLink } from 'react-router-dom'
 import { useTypewriter } from '@/hooks/useTypewriter'
@@ -36,6 +37,7 @@ export function DashboardPage() {
         <AnniversaryCard anniversaryDate={couple?.anniversary_date ?? null} />
         <GalleryCard />
         <TodayCard />
+        <DateSessionCard />
         <QuoteCard />
         <DailyVibeCard />
         <ArcadeCard />

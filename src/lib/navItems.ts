@@ -1,6 +1,7 @@
 import type { ComponentType, SVGProps } from 'react'
 import {
   HomeIcon,
+  ChatBubbleIcon,
   HeartIcon,
   CameraIcon,
   ImageIcon,
@@ -21,6 +22,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { to: '/app', label: 'Beranda', icon: HomeIcon },
+  { to: '/app/chat', label: 'Chat', icon: ChatBubbleIcon },
   { to: '/app/wishlist', label: 'Wishlist', icon: HeartIcon },
   { to: '/app/memories', label: 'Kenangan', icon: CameraIcon },
   { to: '/app/gallery', label: 'Galeri', icon: ImageIcon },

@@ -41,8 +41,19 @@ export function CoupleProvider({ children }: { children: ReactNode }) {
   })
 
   const isLinked = !!couple?.partner1_id && !!couple?.partner2_id
+
+  const { data: partnerName } = useQuery({
+    queryKey: ['partner-name', couple?.id],
+    enabled: isLinked,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('partner_display_name')
+      if (error) throw error
+      return data
+    },
+  })
+
   const youLabel = displayNameFor(user)
-  const partnerLabel = 'Pasanganmu'
+  const partnerLabel = partnerName?.trim() || 'Pasanganmu'
 
   return (
     <CoupleContext.Provider

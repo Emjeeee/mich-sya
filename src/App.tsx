@@ -7,6 +7,7 @@ import { LandingPage } from '@/pages/LandingPage'
 import { LoginPage } from '@/pages/LoginPage'
 import { SignupPage } from '@/pages/SignupPage'
 import { DashboardPage } from '@/pages/DashboardPage'
+import { ChatPage } from '@/pages/ChatPage'
 import { WishlistPage } from '@/pages/WishlistPage'
 import { MemoriesPage } from '@/pages/MemoriesPage'
 import { GalleryPage } from '@/pages/GalleryPage'
@@ -34,6 +35,7 @@ export default function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/app" element={<AppShell />}>
               <Route index element={<DashboardPage />} />
+              <Route path="chat" element={<ChatPage />} />
               <Route path="wishlist" element={<WishlistPage />} />
               <Route path="memories" element={<MemoriesPage />} />
               <Route path="gallery" element={<GalleryPage />} />

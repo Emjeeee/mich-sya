@@ -30,13 +30,19 @@ export function useGoals() {
   }
 
   const addGoal = useMutation({
-    mutationFn: async (input: { title: string; description?: string; target_date?: string }) => {
+    mutationFn: async (input: {
+      title: string
+      description?: string
+      target_date?: string
+      linked_wishlist_item_id?: string
+    }) => {
       const { error } = await supabase.from('couple_goals').insert({
         couple_id: coupleId!,
         created_by: user!.id,
         title: input.title,
         description: input.description || null,
         target_date: input.target_date || null,
+        linked_wishlist_item_id: input.linked_wishlist_item_id || null,
       })
       if (error) throw error
     },

@@ -29,3 +29,12 @@ export async function searchPlaces(query: string): Promise<PlaceSearchResult[]> 
     lng: Number(d.lon),
   }))
 }
+
+export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`
+  const res = await fetch(url, { headers: { 'Accept-Language': 'id' } })
+  if (!res.ok) return null
+
+  const data: NominatimResult = await res.json()
+  return data.display_name ?? null
+}

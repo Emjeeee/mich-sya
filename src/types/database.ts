@@ -80,6 +80,7 @@ export type CoupleGoalRow = {
   description: string | null
   target_date: string | null
   is_done: boolean
+  linked_wishlist_item_id: string | null
   created_by: string | null
   created_at: string
 }
@@ -145,6 +146,55 @@ export type GameScoreRow = {
   created_at: string
 }
 
+export type MessageType = 'text' | 'image' | 'audio' | 'video' | 'gif'
+
+export type MessageRow = {
+  id: string
+  couple_id: string
+  sender_id: string
+  type: MessageType
+  content: string | null
+  media_path: string | null
+  media_duration_ms: number | null
+  reply_to_id: string | null
+  read_at: string | null
+  deleted_at: string | null
+  hidden_for: string[]
+  created_at: string
+}
+
+export type ChatBackgroundRow = {
+  couple_id: string
+  preset: string | null
+  photo_path: string | null
+  updated_by: string | null
+  updated_at: string
+}
+
+export type DateSessionRow = {
+  id: string
+  couple_id: string
+  started_at: string
+  ended_at: string | null
+  title: string | null
+  summary: string | null
+  start_lat: number | null
+  start_lng: number | null
+  end_lat: number | null
+  end_lng: number | null
+  created_by: string | null
+  created_at: string
+}
+
+export type DateSessionLocationRow = {
+  id: string
+  session_id: string
+  couple_id: string
+  lat: number
+  lng: number
+  recorded_at: string
+}
+
 // supabase-js's generic table constraint (GenericTable) requires a
 // Relationships array even though this app never uses PostgREST embeds.
 type Table<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
@@ -168,12 +218,18 @@ export type Database = {
       game_sessions: Table<GameSessionRow>
       gallery_photos: Table<GalleryPhotoRow>
       game_scores: Table<GameScoreRow>
+      messages: Table<MessageRow>
+      chat_background: Table<ChatBackgroundRow>
+      date_sessions: Table<DateSessionRow>
+      date_session_locations: Table<DateSessionLocationRow>
     }
     Views: {
       future_letters_view: { Row: FutureLetterRow; Relationships: [] }
       couple_public_view: { Row: CouplePublicRow; Relationships: [] }
     }
-    Functions: Record<string, never>
+    Functions: {
+      partner_display_name: { Args: Record<PropertyKey, never>; Returns: string }
+    }
     Enums: Record<string, never>
     CompositeTypes: Record<string, never>
   }

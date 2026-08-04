@@ -23,6 +23,23 @@ Buka **SQL Editor** di dashboard Supabase, lalu jalankan berurutan:
 5. [`supabase/migrations/0005_arcade_v2.sql`](supabase/migrations/0005_arcade_v2.sql) — generalisasi
    `game_sessions` (kolom `board` → `state`, dukung 6 game online) + tabel `game_scores` untuk
    papan skor/leaderboard Arcade Room.
+6. [`supabase/migrations/0006_chat.sql`](supabase/migrations/0006_chat.sql) — tabel `messages`
+   (text/image/audio/video/GIF), RLS, bucket privat `chat-media`, dan mengaktifkan Supabase
+   Realtime untuk tabel `messages`. Kalau statement `alter publication supabase_realtime add
+   table messages;` ditolak (tergantung plan/setup project), aktifkan manual lewat dashboard:
+   **Database → Replication → toggle tabel `messages`**.
+7. [`supabase/migrations/0007_date_sessions.sql`](supabase/migrations/0007_date_sessions.sql) —
+   tabel `date_sessions` + `date_session_locations` (fondasi "date monitoring", disiapkan untuk
+   didorong oleh aplikasi mobile terpisah di masa depan), dan kolom `linked_wishlist_item_id` di
+   `couple_goals` (dipakai tombol "Jadikan Goal" di halaman Wishlist).
+8. [`supabase/migrations/0008_partner_name.sql`](supabase/migrations/0008_partner_name.sql) —
+   fungsi `partner_display_name()` (security definer, dibatasi ke pasangan sendiri lewat
+   `my_couple_id()`) supaya nama pasangan bisa ditampilkan di header chat & notifikasi, tanpa
+   membuka akses `auth.users` secara umum ke client.
+9. [`supabase/migrations/0009_chat_extras.sql`](supabase/migrations/0009_chat_extras.sql) —
+   kolom `hidden_for` di `messages` (dukung "Hapus untuk Saya", terpisah dari `deleted_at` yang
+   sudah ada untuk "Hapus untuk Semua"), dan tabel `chat_background` (background chat, satu per
+   couple, dipakai bersama).
 
 ### 3. Install & konfigurasi
 ```bash
@@ -30,7 +47,9 @@ npm install
 cp .env.example .env.local
 ```
 Isi `.env.local` dengan **Project URL** dan **anon public key** dari Settings → API di dashboard
-Supabase.
+Supabase, dan `VITE_GIPHY_API_KEY` untuk pencarian GIF di fitur chat — daftar gratis di
+[developers.giphy.com](https://developers.giphy.com/). Tanpa key ini, kirim
+teks/gambar/audio/video/emoji tetap jalan normal, hanya picker GIF yang tidak bisa dipakai.
 
 ### 4. Buat 2 akun (sekali saja)
 ```bash
@@ -60,7 +79,8 @@ disimpan di Supabase (Postgres), bukan hanya di browser.
 
 | Fitur | Halaman |
 | --- | --- |
-| Beranda (counter, anniversary, quote, mood, ide date) | `/app` |
+| Beranda (counter, anniversary, quote, mood, ide date, date session) | `/app` |
+| Chat (text, gambar, audio, video, emoji, GIF — real-time) | `/app/chat` |
 | Wishlist | `/app/wishlist` |
 | Kenangan (foto & cerita) | `/app/memories` |
 | Galeri (upload banyak foto, kartu looping di beranda) | `/app/gallery` |
@@ -80,7 +100,10 @@ disimpan di Supabase (Postgres), bukan hanya di browser.
   Michael Mode pakai palet hitam/violet/magenta; Tasya Mode pakai palet snow/dusty rose/champagne.
 - **Ikon**: seluruh ikon navigasi, kartu dashboard, dan game pakai set ikon pixel/8-bit buatan
   sendiri (`src/components/ui/pixel-icons.tsx`, bitmap 8×8 di-render sebagai `<rect>` SVG) — bukan
-  emoji atau library eksternal.
+  emoji atau library eksternal. Ikon konseptual (nav, dashboard, arcade) punya warna tetap sesuai
+  makna ikonnya (hati = merah muda, matahari = kuning, 2048 = oranye, dst.) lewat sebuah palette
+  map per ikon; ikon fungsional yang warnanya perlu ikut state (chevron, send, check, dll.) tetap
+  pakai `currentColor` supaya hover/active state & kontras di atas tombol berwarna tidak rusak.
 - **Font**: Poppins (heading), Inter (body), dan stack sistem Apple (`SF Pro Display` dengan
   fallback) untuk angka/counter.
 - **Foto sampul landing page**: diunggah langsung dari dalam aplikasi (Pengaturan → Foto Sampul),
@@ -104,7 +127,26 @@ disimpan di Supabase (Postgres), bukan hanya di browser.
   server sampai `unlock_date` tercapai — jadi isinya benar-benar tidak terkirim ke browser sebelum
   waktunya, bukan cuma disembunyikan di UI.
 - Sinkronisasi antar device memakai refetch-on-focus (react-query), bukan realtime instan — cukup
-  buka ulang/pindah tab untuk melihat perubahan dari pasangan.
+  buka ulang/pindah tab untuk melihat perubahan dari pasangan. **Chat adalah satu-satunya
+  pengecualian**: pesan baru, status "sedang mengetik", dan read-receipt memakai Supabase Realtime
+  (postgres changes + broadcast) sehingga muncul instan tanpa refresh.
+- **Chat**: media (gambar/audio/video) disimpan di bucket privat `chat-media`, GIF dicari lewat
+  GIPHY API dan disimpan sebagai URL langsung (tidak di-upload ulang). Rekam audio memakai
+  `MediaRecorder`/`getUserMedia` bawaan browser (butuh HTTPS atau localhost). Pesan belum dibaca
+  ditandai lewat badge di ikon menu Chat (sidebar & bottom nav) dan banner singkat di halaman lain
+  ("N pesan baru dari ...") — keduanya live lewat langganan Realtime yang sama, bukan polling.
+  Hapus pesan punya dua opsi: "Hapus untuk Saya" (hanya hilang dari device sendiri, lewat kolom
+  `hidden_for`) dan "Hapus untuk Semua" (tombstone `deleted_at`, hanya tersedia untuk pesan
+  sendiri). Ikon pencarian di header mencari isi pesan teks dan bisa lompat ke pesan lama di luar
+  50 pesan yang sedang dimuat. Background chat (preset warna atau upload foto sendiri) tersimpan
+  di tabel `chat_background`, satu per couple — jadi kelihatan sama di device Michael & Ruth.
+- **Date Session** (fondasi "date monitoring"): kartu di beranda untuk mulai/selesai date (baca
+  lokasi lewat Geolocation API browser, best-effort — tetap jalan walau izin lokasi ditolak).
+  Selesai date otomatis membuat entri di jadwal date, menawarkan pin lokasi ke peta perjalanan
+  (nama tempat dari reverse-geocoding Nominatim), dan mengarahkan ke Kenangan/Wishlist untuk
+  foto/cerita/wishlist dari date tersebut. Tabel `date_session_locations` untuk breadcrumb GPS
+  berkala belum dipakai UI web ini — disiapkan sebagai tempat aplikasi mobile terpisah (rencana
+  ke depan, sideload APK, di luar repo ini) mendorong data lokasi periodik ke Supabase yang sama.
 
 ## Scripts
 

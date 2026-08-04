@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils'
 import { AccountMenu } from './AccountMenu'
 import { Logo } from './Logo'
 import { ChevronLeftIcon, ChevronRightIcon } from '@/components/ui/pixel-icons'
+import { useUnreadMessages } from '@/hooks/useUnreadMessages'
 
 function getInitialCollapsed() {
   return localStorage.getItem('sidebar-collapsed') === '1'
@@ -12,6 +13,7 @@ function getInitialCollapsed() {
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(getInitialCollapsed)
+  const unreadMessages = useUnreadMessages()
 
   useEffect(() => {
     localStorage.setItem('sidebar-collapsed', collapsed ? '1' : '0')
@@ -53,8 +55,24 @@ export function Sidebar() {
               )
             }
           >
-            <item.icon className="h-5 w-5 shrink-0" />
-            {!collapsed && item.label}
+            <span className="relative shrink-0">
+              <item.icon className="h-5 w-5" />
+              {collapsed && item.to === '/app/chat' && unreadMessages > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[9px] font-bold leading-none text-white">
+                  {unreadMessages > 9 ? '9+' : unreadMessages}
+                </span>
+              )}
+            </span>
+            {!collapsed && (
+              <span className="flex flex-1 items-center justify-between">
+                {item.label}
+                {item.to === '/app/chat' && unreadMessages > 0 && (
+                  <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+                    {unreadMessages > 9 ? '9+' : unreadMessages}
+                  </span>
+                )}
+              </span>
+            )}
           </NavLink>
         ))}
       </nav>

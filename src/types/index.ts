@@ -15,6 +15,11 @@ export type {
   GameSessionRow,
   GameScoreRow,
   GalleryPhotoRow,
+  MessageType,
+  MessageRow,
+  ChatBackgroundRow,
+  DateSessionRow,
+  DateSessionLocationRow,
 } from './database'
 
 export interface Mood {

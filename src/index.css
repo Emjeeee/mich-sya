@@ -15,6 +15,23 @@
   --color-border: rgba(43, 43, 43, 0.08);
   --color-muted: #8a7f85;
 
+  /* Received chat bubble — always opaque (unlike bg-secondary/20) and
+     deliberately a neutral, low-saturation gray rather than a theme-tinted
+     pastel, so it can't end up close in hue to one of the (colorful) chat
+     wallpaper presets. Paired with a visible border in MessageBubble for a
+     hard edge that reads regardless of what's behind it. */
+  --color-bubble: #e9e6e4;
+  --color-bubble-text: #2b2b2b;
+
+  /* RGB-triplet twins of the hex vars above, used only by tailwind.config.ts
+     so utilities like bg-secondary/20 can apply opacity via rgb(var(...) /
+     <alpha-value>) — Tailwind can't add an opacity modifier on top of a
+     plain hex custom property. */
+  --color-primary-rgb: 255 94 138;
+  --color-secondary-rgb: 255 182 193;
+  --color-accent-rgb: 255 209 102;
+  --color-card-rgb: 255 255 255;
+
   --font-heading: 'Poppins', sans-serif;
   --radius-card: 1.25rem;
   --shadow-card: 0 1px 2px rgba(43, 43, 43, 0.06);
@@ -31,6 +48,14 @@
   --color-card: #1f1b29;
   --color-border: rgba(255, 255, 255, 0.08);
   --color-muted: #a89fae;
+
+  --color-bubble: #2b2b30;
+  --color-bubble-text: #f5f0f6;
+
+  --color-primary-rgb: 255 94 138;
+  --color-secondary-rgb: 255 182 193;
+  --color-accent-rgb: 255 209 102;
+  --color-card-rgb: 31 27 41;
 
   --font-heading: 'Poppins', sans-serif;
   --radius-card: 1.25rem;
@@ -55,6 +80,14 @@
   --color-border: rgba(248, 250, 252, 0.08);
   --color-muted: rgba(248, 250, 252, 0.6);
 
+  --color-bubble: #202023;
+  --color-bubble-text: #f8fafc;
+
+  --color-primary-rgb: 139 92 246;
+  --color-secondary-rgb: 236 72 153;
+  --color-accent-rgb: 236 72 153;
+  --color-card-rgb: 24 24 27;
+
   --font-heading: 'Space Grotesk', sans-serif;
   --radius-card: 0.5rem;
   --shadow-card: 0 0 0 1px rgba(139, 92, 246, 0.15), 0 0 24px rgba(139, 92, 246, 0.06);
@@ -77,6 +110,14 @@
   --color-card: #fffbf8;
   --color-border: rgba(201, 151, 77, 0.25);
   --color-muted: rgba(90, 74, 66, 0.55);
+
+  --color-bubble: #efe8e2;
+  --color-bubble-text: #5a4a42;
+
+  --color-primary-rgb: 232 160 180;
+  --color-secondary-rgb: 242 201 214;
+  --color-accent-rgb: 201 151 77;
+  --color-card-rgb: 255 251 248;
 
   --font-heading: 'Quicksand', sans-serif;
   --radius-card: 1.75rem;

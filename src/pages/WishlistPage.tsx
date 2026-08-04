@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useWishlist } from '@/hooks/useWishlist'
+import { useGoals } from '@/hooks/useGoals'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Modal } from '@/components/ui/Modal'
@@ -8,9 +9,12 @@ import { cn } from '@/lib/utils'
 
 export function WishlistPage() {
   const { data, isLoading, addItem, toggleDone, removeItem } = useWishlist()
+  const { data: goals, addGoal } = useGoals()
   const [open, setOpen] = useState(false)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+
+  const goalWishlistIds = new Set((goals ?? []).map((g) => g.linked_wishlist_item_id).filter(Boolean))
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -67,6 +71,19 @@ export function WishlistPage() {
               </button>
             </div>
             {item.description && <p className="text-sm text-muted">{item.description}</p>}
+            <button
+              onClick={() =>
+                addGoal.mutate({
+                  title: item.title,
+                  description: item.description || undefined,
+                  linked_wishlist_item_id: item.id,
+                })
+              }
+              disabled={goalWishlistIds.has(item.id) || addGoal.isPending}
+              className="mt-auto self-start text-xs font-semibold text-primary hover:underline disabled:cursor-not-allowed disabled:text-muted disabled:no-underline"
+            >
+              {goalWishlistIds.has(item.id) ? 'Sudah jadi Goal ✓' : '→ Jadikan Goal'}
+            </button>
           </Card>
         ))}
       </div>
