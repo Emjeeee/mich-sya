@@ -371,10 +371,14 @@ body {
 }
 
 @keyframes midnight-comet {
-  0% { transform: translate(0, 0) rotate(-30deg); opacity: 0; }
+  /* Both axes are in vw (not vw/vh) so the travel angle is exactly 30deg on
+     every viewport, matching the element's own rotate(30deg) — otherwise the
+     bar's tilt and its actual path diverge and it reads as sliding sideways
+     instead of flying head-first. */
+  0% { transform: translate(0, 0) rotate(30deg); opacity: 0; }
   2% { opacity: 1; }
-  16% { transform: translate(115vw, 65vh) rotate(-30deg); opacity: 0; }
-  100% { transform: translate(115vw, 65vh) rotate(-30deg); opacity: 0; }
+  16% { transform: translate(115vw, 66.4vw) rotate(30deg); opacity: 0; }
+  100% { transform: translate(115vw, 66.4vw) rotate(30deg); opacity: 0; }
 }
 
 .midnight-cloud {
