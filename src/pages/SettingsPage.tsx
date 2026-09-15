@@ -8,6 +8,7 @@ import { Card, CardHeader } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { Input, Label } from '@/components/ui/Input'
 import { ThemeSwitcher } from '@/components/layout/ThemeSwitcher'
+import { RemoteControlCard } from '@/components/settings/RemoteControlCard'
 
 export function SettingsPage() {
   const { couple, youLabel } = useCouple()
@@ -158,6 +159,8 @@ export function SettingsPage() {
         <CardHeader title="Tampilan" subtitle="Pilih tema favorit kalian" />
         <ThemeSwitcher />
       </Card>
+
+      <RemoteControlCard />
 
       <Button variant="danger" size="sm" onClick={() => signOut()}>
         Keluar dari Akun

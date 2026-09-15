@@ -205,6 +205,28 @@ export type DateSessionLocationRow = {
   recorded_at: string
 }
 
+export type RingerMode = 'normal' | 'vibrate' | 'silent'
+
+// Mirrors supabase/migrations/0001_find_partner.sql +
+// 0003_phone_number.sql/0004_remote_control_status.sql/0005_remote_ringer_state.sql/
+// 0006_remote_volume_streams.sql in the michael-tasya-mobile repo — this table
+// lives in the Supabase project shared by both apps, so the web app reads/writes
+// the exact same rows the mobile app's RemoteControlPanel.tsx does.
+export type DevicePushTokenRow = {
+  id: string
+  user_id: string
+  couple_id: string
+  expo_push_token: string | null
+  phone_number: string | null
+  remote_control_granted: boolean
+  remote_ringer_mode: RingerMode | null
+  remote_ring_volume_percent: number | null
+  remote_notification_volume_percent: number | null
+  remote_media_volume_percent: number | null
+  remote_alarm_volume_percent: number | null
+  updated_at: string
+}
+
 // supabase-js's generic table constraint (GenericTable) requires a
 // Relationships array even though this app never uses PostgREST embeds.
 type Table<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
@@ -232,6 +254,7 @@ export type Database = {
       chat_background: Table<ChatBackgroundRow>
       date_sessions: Table<DateSessionRow>
       date_session_locations: Table<DateSessionLocationRow>
+      device_push_tokens: Table<DevicePushTokenRow>
     }
     Views: {
       future_letters_view: { Row: FutureLetterRow; Relationships: [] }

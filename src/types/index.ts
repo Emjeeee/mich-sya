@@ -20,6 +20,8 @@ export type {
   ChatBackgroundRow,
   DateSessionRow,
   DateSessionLocationRow,
+  RingerMode,
+  DevicePushTokenRow,
 } from './database'
 
 export interface Mood {
